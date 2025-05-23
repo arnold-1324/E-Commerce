@@ -1,4 +1,20 @@
-# Dockerfile for routing-service
+#!/usr/bin/env bash
+set -euo pipefail
+
+services=(
+  search-service
+  inventory-service
+  routing-service
+  recommendation-service
+  pricing-service
+  analytics-service
+  cache-service
+)
+
+for svc in "${services[@]}"; do
+  echo "Patching $svc/Dockerfile…"
+  cat > "$svc/Dockerfile" <<EOF
+# Dockerfile for $svc
 
 ###################################
 ### 1) BUILD ###
@@ -10,13 +26,15 @@ COPY TempWebApi.csproj ./
 RUN dotnet restore TempWebApi.csproj
 
 # install curl so healthcheck will work
-RUN apt-get update  && apt-get install -y curl --no-install-recommends  && rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+ && apt-get install -y curl --no-install-recommends \
+ && rm -rf /var/lib/apt/lists/*
 
 
 # copy everything else & publish
 COPY . ./
-RUN dotnet publish TempWebApi.csproj \
-    -c Release \
+RUN dotnet publish TempWebApi.csproj \\
+    -c Release \\
     -o /app/publish
 
 ###################################
@@ -31,3 +49,8 @@ COPY --from=build /app/publish .
 ENV ASPNETCORE_URLS=http://+:5000
 EXPOSE 5000
 ENTRYPOINT ["dotnet", "TempWebApi.dll"]
+EOF
+done
+
+echo "✅ All Dockerfiles corrected. Now re-run:"
+echo "   docker-compose up --build"

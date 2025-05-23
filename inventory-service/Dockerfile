@@ -1,15 +1,33 @@
 # Dockerfile for inventory-service
 
-# Use the official .NET 8 SDK image for build
+###################################
+### 1) BUILD ###
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /app
-COPY . .
-RUN dotnet restore
-RUN dotnet publish -c Release -o /app/out
+WORKDIR /src
 
-# Use the official ASP.NET runtime image for runtime
+# copy & restore only the project file
+COPY TempWebApi.csproj ./
+RUN dotnet restore TempWebApi.csproj
+
+# install curl so healthcheck will work
+RUN apt-get update  && apt-get install -y curl --no-install-recommends  && rm -rf /var/lib/apt/lists/*
+
+
+# copy everything else & publish
+COPY . ./
+RUN dotnet publish TempWebApi.csproj \
+    -c Release \
+    -o /app/publish
+
+###################################
+### 2) RUNTIME ###
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
-COPY --from=build /app/out .
+
+# pull in published output
+COPY --from=build /app/publish .
+
+# expose & run
 ENV ASPNETCORE_URLS=http://+:5000
+EXPOSE 5000
 ENTRYPOINT ["dotnet", "TempWebApi.dll"]
