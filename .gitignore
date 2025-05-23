@@ -1,0 +1,31 @@
+## Ignore Visual Studio temporary files, build results, and
+## user-specific files
+
+# Build results
+bin/
+obj/
+out/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Dotnet artifacts
+*.pdb
+*.cache
+*.log
+*.vs/
+.vscode/
+
+# NuGet packages
+*.nupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+
+# Other
+*.DS_Store
+*.env
+*.swp

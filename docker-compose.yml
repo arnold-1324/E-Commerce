@@ -1,0 +1,100 @@
+version: '3.8'
+services:
+
+  # 1) Search Service
+  search:
+    build: ./search-service
+    working_dir: /workspace/search-service
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+    ports:
+      - "5001:5000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # 2) Inventory Service
+  inventory:
+    build: ./inventory-service
+    working_dir: /workspace/inventory-service
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+    ports:
+      - "5002:5000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # 3) Routing Service
+  routing:
+    build: ./routing-service
+    working_dir: /workspace/routing-service
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+    ports:
+      - "5003:5000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # 4) Recommendation Service
+  recommendation:
+    build: ./recommendation-service
+    working_dir: /workspace/recommendation-service
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+    ports:
+      - "5004:5000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # 5) Pricing Service
+  pricing:
+    build: ./pricing-service
+    working_dir: /workspace/pricing-service
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+    ports:
+      - "5005:5000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # 6) Analytics Service
+  analytics:
+    build: ./analytics-service
+    working_dir: /workspace/analytics-service
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+    ports:
+      - "5006:5000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # 7) Cache Service
+  cache:
+    build: ./cache-service
+    working_dir: /workspace/cache-service
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+    ports:
+      - "5007:5000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
