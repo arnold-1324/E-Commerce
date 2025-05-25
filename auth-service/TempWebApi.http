@@ -1,0 +1,6 @@
+@TempWebApi_HostAddress = http://localhost:5127
+
+GET {{TempWebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

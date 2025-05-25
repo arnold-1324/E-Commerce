@@ -1,93 +1,192 @@
 version: '3.8'
-services:
 
-  # 1) Search Service
+services:
+  # Service 1: Search Service
   search:
     build: ./search-service
+    container_name: search-service
     environment:
       - ASPNETCORE_URLS=http://+:5000
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__Redis=redis:6379
     ports:
       - "5001:5000"
+    depends_on:
+      redis:
+        condition: service_healthy
     healthcheck:
-        test: ["CMD-SHELL", "ss -ltn | grep -q ':5000 '"]
-        interval: 15s
-        timeout: 5s
-        retries: 3
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
 
-  # 2) Inventory Service
+  # Service 2: Redis
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  # Service 3: Inventory Service
   inventory:
     build: ./inventory-service
+    container_name: inventory-service
     environment:
       - ASPNETCORE_URLS=http://+:5000
+      - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "5002:5000"
     healthcheck:
-      test: ["CMD-SHELL", "ss -ltn | grep -q ':5000 '"]
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 15s
       timeout: 5s
       retries: 3
 
-  # 3) Routing Service
+  # Service 4: Routing Service
   routing:
     build: ./routing-service
+    container_name: routing-service
     environment:
       - ASPNETCORE_URLS=http://+:5000
+      - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "5003:5000"
     healthcheck:
-      test: ["CMD-SHELL", "ss -ltn | grep -q ':5000 '"]
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 15s
       timeout: 5s
       retries: 3
 
-  # 4) Recommendation Service
+  # Service 5: Recommendation Service
   recommendation:
     build: ./recommendation-service
+    container_name: recommendation-service
     environment:
       - ASPNETCORE_URLS=http://+:5000
+      - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "5004:5000"
     healthcheck:
-      test: ["CMD-SHELL", "ss -ltn | grep -q ':5000 '"]
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 15s
       timeout: 5s
       retries: 3
 
-  # 5) Pricing Service
+  # Service 6: Pricing Service
   pricing:
     build: ./pricing-service
+    container_name: pricing-service
     environment:
       - ASPNETCORE_URLS=http://+:5000
+      - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "5005:5000"
     healthcheck:
-      test: ["CMD-SHELL", "ss -ltn | grep -q ':5000 '"]
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 15s
       timeout: 5s
       retries: 3
 
-  # 6) Analytics Service
+  # Service 7: Analytics Service
   analytics:
     build: ./analytics-service
+    container_name: analytics-service
     environment:
       - ASPNETCORE_URLS=http://+:5000
+      - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "5006:5000"
     healthcheck:
-      test: ["CMD-SHELL", "ss -ltn | grep -q ':5000 '"]
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 15s
       timeout: 5s
       retries: 3
 
-  # 7) Cache Service
+  # Service 8: Cache Service
   cache:
     build: ./cache-service
+    container_name: cache-service
     environment:
       - ASPNETCORE_URLS=http://+:5000
+      - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "5007:5000"
     healthcheck:
-      test: ["CMD-SHELL", "ss -ltn | grep -q ':5000 '"]
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 15s
       timeout: 5s
       retries: 3
+
+  # Service 9: Auth Service
+  auth:
+    build: ./auth-service
+    container_name: auth-service
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5008:5000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # Service 10: Cart Service
+  cart:
+    build: ./cart-service
+    container_name: cart-service
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5009:5000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # Service 11: Order Service
+  order:
+    build: ./order-service
+    container_name: order-service
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5010:5000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # Service 12: Redis Commander (UI for Redis)
+  redis-commander:
+    image: rediscommander/redis-commander
+    container_name: redis-commander
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  redis-data:

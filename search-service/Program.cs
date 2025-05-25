@@ -1,27 +1,20 @@
+using SearchService.Repositories;
+using SearchService.Services;
+using StackExchange.Redis;
+
 var builder = WebApplication.CreateBuilder(args);
 
+// Dependency injection
+builder.Services.AddSingleton<ISearchRepository, InMemorySearchRepository>();
+builder.Services.AddSingleton<ISearchService, SearchService.Services.SearchService>();
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+    ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")));
+builder.Services.AddScoped<ISearchCache, RedisSearchCache>();
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
+builder.Services.AddControllers();
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
 app.UseHttpsRedirection();
-
-
-
-
+app.MapControllers();
 app.MapGet("/health", () => Results.Ok("OK"));
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

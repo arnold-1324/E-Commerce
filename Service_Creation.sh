@@ -10,24 +10,32 @@ services=(
   pricing-service
   analytics-service
   cache-service
+  cart-service
+  order-service
+  auth-service
 )
 
 for svc in "${services[@]}"; do
   echo "⏳ Scaffolding $svc..."
-  # ensure the folder exists and cd into it
   mkdir -p "$svc"
   pushd "$svc" >/dev/null
 
-    # generate into a temp subfolder so we can flatten
-    dotnet new webapi -o TempWebApi
+    # Clean up any existing TempWebApi so --force isn’t strictly necessary 
+    rm -rf TempWebApi
 
-    # move everything up, overwrite existing if needed
+    # scaffold targeting net8.0, no-openapi, and force overwrite
+    dotnet new webapi \
+      -o TempWebApi \
+      --framework net8.0 \
+      --no-openapi \
+      --force
+
+    # flatten
     shopt -s dotglob
-    mv TempWebApi/* .
+    mv TempWebApi/* . 2>/dev/null || true
     mv TempWebApi/.[!.]* . 2>/dev/null || true
     shopt -u dotglob
 
-    # remove the empty scaffold folder
     rm -rf TempWebApi
 
   popd >/dev/null
