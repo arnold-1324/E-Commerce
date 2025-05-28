@@ -138,7 +138,9 @@ services:
     container_name: product-service
     environment:
       - ASPNETCORE_URLS=http://+:5000
-      - ConnectionStrings__MongoDB=mongodb://mongo:27017
+      - MongoDbSettings__ConnectionString=mongodb://mongo:27017
+      - MongoDbSettings__DatabaseName=ecommerce_db
+      - MongoDbSettings__ProductCollectionName=products
     ports:
       - "5007:5000"
     depends_on:
