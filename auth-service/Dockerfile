@@ -6,8 +6,8 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # copy & restore only the project file
-COPY AuthService.csproj ./
-RUN dotnet restore AuthService.csproj
+COPY auth-service.csproj ./
+RUN dotnet restore auth-service.csproj
 
 # install curl so healthcheck will work
 RUN apt-get update \
@@ -16,7 +16,7 @@ RUN apt-get update \
 
 # copy everything else & publish
 COPY . ./
-RUN dotnet publish AuthService.csproj \
+RUN dotnet publish auth-service.csproj \
     -c Release \
     -o /app/publish
 
@@ -31,4 +31,4 @@ COPY --from=build /app/publish ./
 # expose & run
 ENV ASPNETCORE_URLS=http://+:5000
 EXPOSE 5000
-ENTRYPOINT ["dotnet", "AuthService.dll"]
+ENTRYPOINT ["dotnet", "auth-service.dll"]

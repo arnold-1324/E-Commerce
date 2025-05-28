@@ -6,8 +6,8 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # copy & restore only the project file
-COPY RecommendationService.csproj ./
-RUN dotnet restore RecommendationService.csproj
+COPY recommendation-service.csproj ./
+RUN dotnet restore recommendation-service.csproj
 
 # install curl so healthcheck will work
 RUN apt-get update \
@@ -16,7 +16,7 @@ RUN apt-get update \
 
 # copy everything else & publish
 COPY . ./
-RUN dotnet publish RecommendationService.csproj \
+RUN dotnet publish recommendation-service.csproj \
     -c Release \
     -o /app/publish
 
@@ -31,4 +31,4 @@ COPY --from=build /app/publish ./
 # expose & run
 ENV ASPNETCORE_URLS=http://+:5000
 EXPOSE 5000
-ENTRYPOINT ["dotnet", "RecommendationService.dll"]
+ENTRYPOINT ["dotnet", "recommendation-service.dll"]

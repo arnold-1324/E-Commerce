@@ -2,16 +2,16 @@
 set -euo pipefail
 
 services=(
-  search-service
-  inventory-service
-  routing-service
-  recommendation-service
-  pricing-service
-  analytics-service
-  cache-service
+  # search-service
   cart-service
   order-service
+  payment-service
+  user-service
   auth-service
+  product-service
+  wishlist-service
+  recommendation-service
+  notification-service
 )
 
 for svc in "${services[@]}"; do

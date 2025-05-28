@@ -1,2 +1,8 @@
 image:
   file: .gitpod.Dockerfile
+
+tasks:
+  - name: Verify .NET
+    command: |
+      export PATH="$PATH:/usr/share/dotnet"
+      dotnet --info

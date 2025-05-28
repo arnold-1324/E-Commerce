@@ -6,8 +6,8 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # copy & restore only the project file
-COPY CartService.csproj ./
-RUN dotnet restore CartService.csproj
+COPY cart-service.csproj ./
+RUN dotnet restore cart-service.csproj
 
 # install curl so healthcheck will work
 RUN apt-get update \
@@ -16,7 +16,7 @@ RUN apt-get update \
 
 # copy everything else & publish
 COPY . ./
-RUN dotnet publish CartService.csproj \
+RUN dotnet publish cart-service.csproj \
     -c Release \
     -o /app/publish
 
@@ -31,4 +31,4 @@ COPY --from=build /app/publish ./
 # expose & run
 ENV ASPNETCORE_URLS=http://+:5000
 EXPOSE 5000
-ENTRYPOINT ["dotnet", "CartService.dll"]
+ENTRYPOINT ["dotnet", "cart-service.dll"]

@@ -1,0 +1,1102 @@
+[
+  {
+    "user_id": "4597c0f9-4671-4427-aadb-40e778bc6f99",
+    "name": "Charles Holt",
+    "email": "ewilliams@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "f7e28c92-ae1a-418b-8cb5-9a80036aa874",
+    "name": "David Brown",
+    "email": "scox@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "7b1d2764-0a5c-4dad-ad3c-3e3725ad15f0",
+    "name": "Marvin Robinson",
+    "email": "scott21@example.org",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "7c2c66fb-6186-46dd-af1c-9b5d8f29668e",
+    "name": "Ashley Lawrence",
+    "email": "allisoncook@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "121c9ebf-010c-4db3-b586-097a4ace33c5",
+    "name": "Peter Dodson",
+    "email": "laura53@example.org",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "281d3f29-a4ca-47f2-87e6-d1d4be360432",
+    "name": "Paul Holden",
+    "email": "rogerjohnson@example.org",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "dce31f4d-e76f-4ff5-b91e-4ea86d89e04c",
+    "name": "Charles Blackwell",
+    "email": "desiree13@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "06bbcab9-e290-4340-9056-339a8e562fed",
+    "name": "Catherine Ortega",
+    "email": "hermanjamie@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "315ffa2d-575b-4136-ad70-c41697887394",
+    "name": "Bobby White",
+    "email": "ellenwalker@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Home & Kitchen",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "4c5511f7-b54f-4c3b-9f04-0afa01fb8309",
+    "name": "Donald Le",
+    "email": "floresnicholas@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Home & Kitchen",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "3d026dcc-815c-4023-ae73-f909808f687e",
+    "name": "Rachael White",
+    "email": "susan47@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "5e4c072f-f15f-4b36-af8e-65eb0d76635f",
+    "name": "Jennifer Baker",
+    "email": "chad93@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "2e518338-3fe2-4eca-bc54-9e73325cfdc4",
+    "name": "Susan Pearson",
+    "email": "hjohnson@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "747d08c4-992f-4b83-82ed-463a5d06fdbe",
+    "name": "Scott Davis",
+    "email": "ann33@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "8f1ae346-07b7-4837-8477-09024077646a",
+    "name": "Jessica Huynh",
+    "email": "stephen09@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Home & Kitchen",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "aedf6359-8d8c-46c0-9cfa-870c14bf3d44",
+    "name": "Theresa Clark",
+    "email": "floydalexander@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "fbb3b8cd-9b86-4798-b9c6-1b35d00900d9",
+    "name": "Lauren Howard",
+    "email": "jamesweiss@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "146dd2a8-ab9f-48f2-88b8-a1e3c51a8793",
+    "name": "Kelly Morris",
+    "email": "jsmith@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "eb4bb343-18e1-4fab-90cd-3654c8bf66c9",
+    "name": "Kara Parsons",
+    "email": "samuel02@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Home & Kitchen",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "3b24aeb9-0ba6-4d37-8b60-c24078288c05",
+    "name": "Terry Barton",
+    "email": "rachel03@example.org",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "e6e065cf-a174-4bf8-8e9c-979796629ae8",
+    "name": "Mr. Joseph Baldwin DDS",
+    "email": "ocollier@example.org",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "9b250a23-d516-467c-8430-056a7505b087",
+    "name": "Aaron Stevenson",
+    "email": "rodriguezbernard@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Home & Kitchen",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "32b99357-925e-40a2-9724-fe0fb93792cb",
+    "name": "Alexander Price",
+    "email": "pfitzgerald@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "348139c2-7cc8-49b0-b32a-b9087b59798e",
+    "name": "Michael Smith",
+    "email": "gthomas@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Home & Kitchen",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "2fac9d39-f3d0-4f63-ac49-fb8b3f35a23e",
+    "name": "Craig Kaiser",
+    "email": "scott10@example.org",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Home & Kitchen",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "5ab40ddb-3b39-4e82-bc8d-7cfed0cea588",
+    "name": "Ana Contreras",
+    "email": "kristyhansen@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "4f8432e0-70f6-41ca-8f1d-76c23787f994",
+    "name": "Hunter Cisneros",
+    "email": "veronica84@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Home & Kitchen",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "ced8cb50-3615-4ba4-815c-0e490d7b802d",
+    "name": "Ruben Murray",
+    "email": "catherine66@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "6fbef73f-32eb-41c0-aa66-087701789473",
+    "name": "Brian Jimenez",
+    "email": "stephanie22@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Home & Kitchen",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "bbc784bb-b740-4ce2-864e-9fce4bcf9dea",
+    "name": "Rachel Bryant",
+    "email": "aeverett@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "e143c0a9-ee8d-43cd-8fe8-09103b557b38",
+    "name": "Tyler Singleton",
+    "email": "melissa30@example.org",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "17c2d90c-52a8-44e9-aa6e-071452534e3d",
+    "name": "Sandra Carr",
+    "email": "bmiller@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "22de745e-fcab-4f3e-b216-537858422a18",
+    "name": "Shelly Rogers",
+    "email": "kwebster@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Home & Kitchen",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "fab3e8be-d942-4ff9-8fb1-1cff012c6f3f",
+    "name": "Jennifer Moore",
+    "email": "kellermichelle@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "f1fcd042-6e0d-4c08-a527-710c06eef97f",
+    "name": "Joseph Macdonald",
+    "email": "madison31@example.org",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "f7c02d39-dae1-4232-879c-8f554e6cc618",
+    "name": "Lisa Tucker",
+    "email": "scottbrooks@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "a5c5a045-f8b8-4892-bdc2-dd315c5a8dc0",
+    "name": "Theresa Williams",
+    "email": "alexandrahall@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "71271d7c-98da-48b6-8d10-4167768cb8fc",
+    "name": "Kristin Richardson",
+    "email": "daniel23@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "8e59ff5c-0527-4e57-93dc-f1aa662e4c37",
+    "name": "Ashley Jones",
+    "email": "reynoldsrachel@example.org",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "3e43c5bd-8d8c-40fb-a243-347b45509746",
+    "name": "Carolyn Anderson",
+    "email": "cathymora@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "77b5dbde-5091-4ef4-bfe9-00e17d821b9c",
+    "name": "Anna Powers",
+    "email": "nstrong@example.org",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "6fb01f65-25c9-4186-b3d5-0a83c41ef7df",
+    "name": "Andrew Lara",
+    "email": "aaronjohnson@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "67f49eba-028e-4c1f-9f49-f42b0bd4a00b",
+    "name": "Ronald Hernandez",
+    "email": "taylor23@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "3cae44d2-33ae-46d3-ac82-6d7654257622",
+    "name": "David Jackson",
+    "email": "mejiachad@example.org",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "30f1dada-79fd-4fe3-b2d6-409a54e7e157",
+    "name": "Julie Davies",
+    "email": "kimberlytaylor@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "d1a4d580-2cb9-4241-92b8-1eebff2dd0a6",
+    "name": "Sharon Lynch",
+    "email": "kayla72@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Home & Kitchen",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "bbf5a5b4-2d54-4cd9-9153-8eefd4d79260",
+    "name": "Kristen Wagner",
+    "email": "kristindudley@example.org",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "d6fb853a-5c08-4ffc-9d73-e0003bf4470f",
+    "name": "Tina Burgess",
+    "email": "ryandavid@example.org",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Home & Kitchen",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "58145838-3aea-4da7-9316-617865943911",
+    "name": "Michael Brown",
+    "email": "klopez@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Home & Kitchen",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "fbb34b15-5d60-46fd-ada6-a11296b28d7d",
+    "name": "Amber Lane",
+    "email": "yconley@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "3c64ff75-c841-4322-9235-f92bb79bc47b",
+    "name": "Michaela Pierce",
+    "email": "mikechambers@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "d0330bab-4674-4fb0-8aba-f09edddd7ddc",
+    "name": "Kathy Murphy",
+    "email": "dkline@example.org",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "891d4c9c-4917-4be4-8cb1-fb7b6691d488",
+    "name": "Ebony Anderson",
+    "email": "anthony64@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "8b4a7c2c-b910-4ebf-97bb-2dbbc8bda6a3",
+    "name": "Tracy Turner",
+    "email": "timothylopez@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "09697396-cb90-4c00-ad6b-60b701259aed",
+    "name": "Kevin Gross",
+    "email": "floresjamie@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "99e29375-c918-4b13-a9b0-967f009b6df6",
+    "name": "Karen Shannon",
+    "email": "mrivera@example.org",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "4780281a-6599-4978-8b48-2a3728ccd153",
+    "name": "Monica Jones",
+    "email": "xhickman@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Home & Kitchen",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "fcb4079d-b7c8-4ea9-b6d4-73ffb272fb08",
+    "name": "Adam Suarez",
+    "email": "jacksonkelly@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "6c559fa7-9c46-4039-b3ec-e1469a662f1d",
+    "name": "Nicole Hopkins",
+    "email": "znelson@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "0280651a-7943-4260-a88e-c6d10f626f53",
+    "name": "Teresa Mata",
+    "email": "lmeyers@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "53683818-da15-42aa-b7ff-f518082d1a5a",
+    "name": "Craig Walker",
+    "email": "qmiller@example.org",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Home & Kitchen",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "b6a7a404-1bb6-444c-8ce4-5b7739c232b5",
+    "name": "Virginia Armstrong",
+    "email": "shellymitchell@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Home & Kitchen",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "6c9b7b7b-3426-4695-8fd0-ebb3feb00fbc",
+    "name": "Jonathan Simpson",
+    "email": "rowlandbrittany@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "62740b7c-e00d-4eee-8786-7546b42e2d4d",
+    "name": "Trevor Moses",
+    "email": "acurtis@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "382b8b42-616c-412a-b79d-0281841e7d30",
+    "name": "Brittney Ward",
+    "email": "jennifer97@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Home & Kitchen",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "8b025793-178d-4e97-88b7-5f66e439022d",
+    "name": "Michael Smith",
+    "email": "guzmanashlee@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "39c89210-50b0-42c9-b203-ec42099adafe",
+    "name": "Janet House",
+    "email": "gwalker@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "eb608d61-7bb7-4007-9473-bc3c65f0315d",
+    "name": "Christy Malone",
+    "email": "michelleking@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "72fb2d27-f4b1-49dd-b516-4ec1fb785f3f",
+    "name": "Suzanne Blanchard",
+    "email": "daniel37@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Home & Kitchen",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "8dafdee0-7639-4b17-be7f-8c69e7cb0b56",
+    "name": "Stephanie Leonard",
+    "email": "jordanashley@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "c6f62e8e-a0cc-4909-b292-7f1d02359428",
+    "name": "John Marquez",
+    "email": "brian11@example.org",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Home & Kitchen",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "66af71b9-ff7f-4260-9aae-32af2482fefe",
+    "name": "Lauren Sanders",
+    "email": "leachwilliam@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "310f1dfa-0549-454c-ba00-f89fc5ff5a4f",
+    "name": "Jacob Hammond",
+    "email": "brogers@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "7e4a08a2-2f55-46e1-ad4e-73cdc6d34761",
+    "name": "John Silva",
+    "email": "jacob52@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Home & Kitchen",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "b29b08b5-f02f-40a8-88f5-911e681895cc",
+    "name": "Jeffrey Munoz",
+    "email": "jessica01@example.org",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Home & Kitchen",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "a6347f8b-c531-490b-bf0d-d4b156b84f77",
+    "name": "Melissa Fox",
+    "email": "hernandezisaiah@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "cd30db28-1915-4931-969d-4e499897cb17",
+    "name": "Robert Harrison",
+    "email": "colleenthomas@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Home & Kitchen",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "9fc2e922-06dc-4198-b340-04962fe0090f",
+    "name": "Christopher Murray",
+    "email": "rkim@example.org",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "862c4767-07cc-438d-ab13-359f0247a113",
+    "name": "Paige Brown",
+    "email": "charles21@example.org",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "d070db8e-cb4d-4b4a-8491-7961fbf627f5",
+    "name": "Kayla Skinner",
+    "email": "ymartinez@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "2ca51d98-a60c-46b8-9a78-04939c70306c",
+    "name": "Samantha Smith",
+    "email": "lawsonmelissa@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Home & Kitchen",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "2657d6be-df99-4210-ba57-e6e32fb21543",
+    "name": "Jared Mendoza",
+    "email": "codyjones@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "7dad2276-3fa7-47ab-8282-fadd30d7829e",
+    "name": "Keith Carter",
+    "email": "lking@example.org",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "5686d6e1-bd44-48d5-8e60-be99fafa7274",
+    "name": "David Contreras",
+    "email": "beardjoanna@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "17e500c2-8ad5-4ff3-8755-2bf1fea96981",
+    "name": "Emily Khan",
+    "email": "kurt02@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "23056d49-1f45-4c2a-bd50-36a934a7c54b",
+    "name": "Nicole Perez",
+    "email": "floresrose@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Home & Kitchen",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "053004c6-8f03-424f-a9cf-9b43b7e5ef1a",
+    "name": "Justin Norton",
+    "email": "williamrichard@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "8d1770eb-11c4-4319-bfeb-b70b82eb517d",
+    "name": "Lee Crawford",
+    "email": "rvasquez@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "1b2799e4-cd97-4546-846a-534365847246",
+    "name": "Devin Meyer DDS",
+    "email": "davidali@example.org",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "1644c83d-f0d7-4c71-9e25-2252e3555687",
+    "name": "Austin Bennett",
+    "email": "andrea08@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "ec1157ee-0a52-4353-aec3-d8a64e619b0c",
+    "name": "Matthew Taylor",
+    "email": "ryan40@example.org",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "34c7fc72-8908-4e79-81cd-00e23d3a1454",
+    "name": "Mitchell Kelly",
+    "email": "kevinreese@example.org",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "2d53cb2b-1448-4a28-8859-21a072757064",
+    "name": "Mark Schneider",
+    "email": "spencerday@example.org",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "8bae7a38-6348-4c4d-bd19-0e5029886250",
+    "name": "Brian Roberts",
+    "email": "chanjamie@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Home & Kitchen"
+    ]
+  },
+  {
+    "user_id": "353f1007-b0a9-481f-b212-394166f2a68f",
+    "name": "Thomas Ross",
+    "email": "johnsonkimberly@example.org",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "7f0d70da-a4b9-47e9-a014-146384c564a7",
+    "name": "Shawn Smith",
+    "email": "katherinewilliams@example.org",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Clothing",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "f666bf88-c497-4798-8b34-bbfbb06cee0e",
+    "name": "Stephanie Hill",
+    "email": "kimberly89@example.org",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Home & Kitchen",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "90f9cb95-4058-443d-b283-39de0aaa739e",
+    "name": "Aaron Wright",
+    "email": "amypittman@example.net",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Home & Kitchen",
+      "Clothing"
+    ]
+  },
+  {
+    "user_id": "b03f422f-1c26-48d3-ac32-88bdff96d34c",
+    "name": "Claudia Nelson DDS",
+    "email": "scole@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Home & Kitchen",
+      "Electronics"
+    ]
+  },
+  {
+    "user_id": "dc2cb3c1-0040-4b20-9cb4-d44859e83550",
+    "name": "Michelle Benton",
+    "email": "uhampton@example.com",
+    "purchase_history": [],
+    "search_history": [],
+    "preferences": [
+      "Electronics",
+      "Clothing"
+    ]
+  }
+]

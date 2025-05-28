@@ -1,18 +1,44 @@
-version: '3.8'
-
 services:
-  # Service 1: Search Service
+  # ----------------------------------------------------------------
+  # API Gateway
+  # ----------------------------------------------------------------
+  nginx:
+    image: nginx:stable-alpine
+    container_name: api-gateway
+    ports:
+      - "8000:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - auth
+      - user
+      - search
+      - cart
+      - order
+      - payment
+      - product
+      - wishlist
+      - recommendation
+      - notification
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # ----------------------------------------------------------------
+  # Core Services
+  # ----------------------------------------------------------------
   search:
     build: ./search-service
     container_name: search-service
     environment:
       - ASPNETCORE_URLS=http://+:5000
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__Redis=redis:6379
+      - ConnectionStrings__Elasticsearch=http://elasticsearch:9200
     ports:
       - "5001:5000"
     depends_on:
-      redis:
+      elasticsearch:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
@@ -20,7 +46,165 @@ services:
       timeout: 5s
       retries: 3
 
-  # Service 2: Redis
+  cart:
+    build: ./cart-service
+    container_name: cart-service
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__Redis=redis:6379
+      - Kafka__BootstrapServers=kafka:9092
+    ports:
+      - "5002:5000"
+    depends_on:
+      - redis
+      - kafka
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  order:
+    build: ./order-service
+    container_name: order-service
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__Postgres=postgres:5432
+      - Kafka__BootstrapServers=kafka:9092
+    ports:
+      - "5003:5000"
+    depends_on:
+      - postgres
+      - kafka
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  payment:
+    build: ./payment-service
+    container_name: payment-service
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__Postgres=postgres:5432
+    ports:
+      - "5004:5000"
+    depends_on:
+      - postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  user:
+    build: ./user-service
+    container_name: user-service
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__MySQL=mysql:3306
+    ports:
+      - "5005:5000"
+    depends_on:
+      - mysql
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  auth:
+    build: ./auth-service
+    container_name: auth-service
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__Postgres=postgres:5432
+    ports:
+      - "5006:5000"
+    depends_on:
+      - postgres
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # ----------------------------------------------------------------
+  # Domain-specific Services
+  # ----------------------------------------------------------------
+  product:
+    build: ./product-service
+    container_name: product-service
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__MongoDB=mongodb://mongo:27017
+    ports:
+      - "5007:5000"
+    depends_on:
+      - mongo
+      - elasticsearch
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  wishlist:
+    build: ./wishlist-service
+    container_name: wishlist-service
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__Redis=redis:6379
+    ports:
+      - "5008:5000"
+    depends_on:
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  recommendation:
+    build: ./recommendation-service
+    container_name: recommendation-service
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__Neo4j=neo4j://neo4j:7687
+      - Kafka__BootstrapServers=kafka:9092
+    ports:
+      - "5009:5000"
+    depends_on:
+      - neo4j
+      - kafka
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  notification:
+    build: ./notification-service
+    container_name: notification-service
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__MongoDB=mongodb://mongo:27017
+      - Kafka__BootstrapServers=kafka:9092
+    ports:
+      - "5010:5000"
+    depends_on:
+      - mongo
+      - kafka
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # ----------------------------------------------------------------
+  # Data Infrastructure
+  # ----------------------------------------------------------------
   redis:
     image: redis:7
     container_name: redis
@@ -35,158 +219,123 @@ services:
       retries: 3
     restart: unless-stopped
 
-  # Service 3: Inventory Service
-  inventory:
-    build: ./inventory-service
-    container_name: inventory-service
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.5.1
+    container_name: elasticsearch
     environment:
-      - ASPNETCORE_URLS=http://+:5000
-      - ASPNETCORE_ENVIRONMENT=Development
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+   
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
     ports:
-      - "5002:5000"
+      - "9200:9200"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health?wait_for_status=yellow"]
       interval: 15s
       timeout: 5s
       retries: 3
 
-  # Service 4: Routing Service
-  routing:
-    build: ./routing-service
-    container_name: routing-service
+  zookeeper:
+    image: bitnami/zookeeper:latest
+    container_name: zookeeper
     environment:
-      - ASPNETCORE_URLS=http://+:5000
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ALLOW_ANONYMOUS_LOGIN=yes
     ports:
-      - "5003:5000"
+      - "2181:2181"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      test: ["CMD", "zkServer.sh", "status"]
       interval: 15s
       timeout: 5s
       retries: 3
 
-  # Service 5: Recommendation Service
-  recommendation:
-    build: ./recommendation-service
-    container_name: recommendation-service
+  kafka:
+    image: bitnami/kafka:latest
+    container_name: kafka
     environment:
-      - ASPNETCORE_URLS=http://+:5000
-      - ASPNETCORE_ENVIRONMENT=Development
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
     ports:
-      - "5004:5000"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-
-  # Service 6: Pricing Service
-  pricing:
-    build: ./pricing-service
-    container_name: pricing-service
-    environment:
-      - ASPNETCORE_URLS=http://+:5000
-      - ASPNETCORE_ENVIRONMENT=Development
-    ports:
-      - "5005:5000"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-
-  # Service 7: Analytics Service
-  analytics:
-    build: ./analytics-service
-    container_name: analytics-service
-    environment:
-      - ASPNETCORE_URLS=http://+:5000
-      - ASPNETCORE_ENVIRONMENT=Development
-    ports:
-      - "5006:5000"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-
-  # Service 8: Cache Service
-  cache:
-    build: ./cache-service
-    container_name: cache-service
-    environment:
-      - ASPNETCORE_URLS=http://+:5000
-      - ASPNETCORE_ENVIRONMENT=Development
-    ports:
-      - "5007:5000"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-
-  # Service 9: Auth Service
-  auth:
-    build: ./auth-service
-    container_name: auth-service
-    environment:
-      - ASPNETCORE_URLS=http://+:5000
-      - ASPNETCORE_ENVIRONMENT=Development
-    ports:
-      - "5008:5000"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-
-  # Service 10: Cart Service
-  cart:
-    build: ./cart-service
-    container_name: cart-service
-    environment:
-      - ASPNETCORE_URLS=http://+:5000
-      - ASPNETCORE_ENVIRONMENT=Development
-    ports:
-      - "5009:5000"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-
-  # Service 11: Order Service
-  order:
-    build: ./order-service
-    container_name: order-service
-    environment:
-      - ASPNETCORE_URLS=http://+:5000
-      - ASPNETCORE_ENVIRONMENT=Development
-    ports:
-      - "5010:5000"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-
-  # Service 12: Redis Commander (UI for Redis)
-  redis-commander:
-    image: rediscommander/redis-commander
-    container_name: redis-commander
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-    ports:
-      - "8081:8081"
+      - "9092:9092"
     depends_on:
-      redis:
-        condition: service_healthy
+      - zookeeper
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081"]
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=ecommerce
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_DATABASE=users
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  mongo:
+    image: mongo:6
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  neo4j:
+    image: neo4j:5
+    container_name: neo4j
+    environment:
+      - NEO4J_AUTH=neo4j/secret123
+    ports:
+      - "7687:7687"
+      - "7474:7474"
+    volumes:
+      - neo4j-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7474"]
       interval: 15s
       timeout: 5s
       retries: 3
 
 volumes:
   redis-data:
+  es-data:
+  pg-data:
+  mysql-data:
+  mongo-data:
+  neo4j-data:

@@ -1,8 +1,10 @@
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddControllers();
 
 // Add services to the container.
 
 var app = builder.Build();
+app.MapControllers();
 
 // Configure the HTTP request pipeline.
 
@@ -26,7 +28,7 @@ app.MapGet("/weatherforecast", () =>
     return forecast;
 });
 
-app.MapGet("/health", () => Results.Ok("OK"));
+        app.MapGet("/api/recommendation-service/health", () => Results.Ok("OK"));
 app.Run();
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)

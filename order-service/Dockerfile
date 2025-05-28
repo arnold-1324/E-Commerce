@@ -6,8 +6,8 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # copy & restore only the project file
-COPY OrderService.csproj ./
-RUN dotnet restore OrderService.csproj
+COPY order-service.csproj ./
+RUN dotnet restore order-service.csproj
 
 # install curl so healthcheck will work
 RUN apt-get update \
@@ -16,9 +16,10 @@ RUN apt-get update \
 
 # copy everything else & publish
 COPY . ./
-RUN dotnet publish OrderService.csproj \
+RUN dotnet publish order-service.csproj \
     -c Release \
-    -o /app/publish
+    -o /app/publish \
+    && ls -l /app/publish
 
 ###################################
 ### 2) RUNTIME ###
@@ -31,4 +32,4 @@ COPY --from=build /app/publish ./
 # expose & run
 ENV ASPNETCORE_URLS=http://+:5000
 EXPOSE 5000
-ENTRYPOINT ["dotnet", "OrderService.dll"]
+ENTRYPOINT ["dotnet", "order-service.dll"]

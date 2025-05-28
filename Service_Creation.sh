@@ -1,42 +1,38 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# List all your services here
+# List all your services here (matching docker-compose.yml)
 services=(
-  search-service
-  inventory-service
-  routing-service
-  recommendation-service
-  pricing-service
-  analytics-service
-  cache-service
+  # api-gateway
   cart-service
   order-service
+  payment-service
+  user-service
   auth-service
+  product-service
+  wishlist-service
+  recommendation-service
+  notification-service
 )
 
 for svc in "${services[@]}"; do
   echo "⏳ Scaffolding $svc..."
+  # Create service folder if it doesn't exist
   mkdir -p "$svc"
   pushd "$svc" >/dev/null
 
-    # Clean up any existing TempWebApi so --force isn’t strictly necessary 
-    rm -rf TempWebApi
+    # Remove any existing scaffold (optional)
+    rm -rf "$svc-TempWebApi"
 
-    # scaffold targeting net8.0, no-openapi, and force overwrite
+    # Scaffold directly into the service folder
     dotnet new webapi \
-      -o TempWebApi \
+      --name "$svc" \
       --framework net8.0 \
       --no-openapi \
+      --output . \
       --force
 
-    # flatten
-    shopt -s dotglob
-    mv TempWebApi/* . 2>/dev/null || true
-    mv TempWebApi/.[!.]* . 2>/dev/null || true
-    shopt -u dotglob
-
-    rm -rf TempWebApi
+    # (No flattening needed since we output directly)
 
   popd >/dev/null
   echo "✅ $svc ready."

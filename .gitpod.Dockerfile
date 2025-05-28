@@ -1,16 +1,11 @@
 FROM gitpod/workspace-full:latest
 
-USER root
-# 1) Add MS package feed
-RUN wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O /tmp/packages-microsoft-prod.deb \
-    && dpkg -i /tmp/packages-microsoft-prod.deb \
-    && rm /tmp/packages-microsoft-prod.deb
+# Install .NET SDK using the official install script
+RUN curl -sSL https://dot.net/v1/dotnet-install.sh | bash -s -- --channel 8.0 --install-dir /usr/share/dotnet
+RUN ln -s /usr/share/dotnet/dotnet /usr/bin/dotnet
 
-# 2) Install .NET SDK
-RUN apt-get update \
-    && apt-get install -y dotnet-sdk-8.0 \
-    && rm -rf /var/lib/apt/lists/*
+# Optional: Verify installation
+RUN dotnet --info
 
 USER gitpod
 WORKDIR /workspace
-CMD ["bash"]
