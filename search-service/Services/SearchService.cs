@@ -9,38 +9,27 @@ namespace SearchService.Services
 {
     public class SearchService : ISearchService
     {
-        private readonly ISearchRepository _repo;
-        private readonly Trie _trie = new();
+        private readonly IElasticSearchRepository _repo;
 
-        public SearchService(ISearchRepository repo)
+        public SearchService(IElasticSearchRepository repo)
         {
             _repo = repo;
         }
 
         public async Task IndexAsync(Product product)
         {
-            await _repo.AddOrUpdateAsync(product);
-            _trie.Insert(product.Name, product.Id);
+            await _repo.IndexAsync(product);
         }
 
         public async Task<SearchResult> SearchAsync(string query, int page, int size)
         {
-            var ids = _trie.Search(query);
-            var products = await _repo.GetByIdsAsync(ids);
-
-            var sorted = products.OrderBy(p => p.Name).ToList();
-
-            var paged = sorted
-                .Skip((page - 1) * size)
-                .Take(size)
-                .ToList();
-
+            var products = await _repo.SearchAsync(query, page, size);
             return new SearchResult
             {
-                TotalCount = sorted.Count,
+                TotalCount = products.Count,
                 Page = page,
                 Size = size,
-                Items = paged.AsReadOnly()
+                Items = products
             };
         }
     }

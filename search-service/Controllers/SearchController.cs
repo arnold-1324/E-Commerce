@@ -9,16 +9,15 @@ namespace SearchService.Controllers
     public class SearchController : ControllerBase
     {
         private readonly ISearchService _searchService;
-        private readonly ILogger<SearchController> _logger;
         private readonly ISearchCache _searchCache;
+        private readonly ILogger<SearchController> _logger;
+
         public SearchController(ISearchService searchService, ISearchCache searchCache, ILogger<SearchController> logger)
         {
             _searchService = searchService;
             _searchCache = searchCache;
             _logger = logger;
         }
-
-      
 
         [HttpPost("index")]
         public async Task<IActionResult> Index([FromBody] Product product)
@@ -32,35 +31,26 @@ namespace SearchService.Controllers
 
         [HttpGet("query")]
         public async Task<IActionResult> Search(
-     [FromQuery] string q,
-     [FromQuery] int page = 1,
-     [FromQuery] int size = 20)
+            [FromQuery] string q,
+            [FromQuery] int page = 1,
+            [FromQuery] int size = 20)
         {
-            if (string.IsNullOrWhiteSpace(q))
-                return BadRequest("Query parameter 'q' is required.");
-
-            if (page < 1 || size < 1)
-                return BadRequest("'page' and 'size' must be >= 1.");
-             
-             string cacheKey = $"{q.ToLowerInvariant()}_{page}_{size}";
-            try
+            // Try cache first, then fallback to Elasticsearch
+            var cached = await _searchCache.GetCachedResultAsync(q);
+            if (cached != null)
             {
-                var cached = await _searchCache.GetCachedResultAsync(cacheKey);
-                if (cached != null)
-                    return Ok(JsonSerializer.Deserialize<List<SearchItem>>(cached));
+                var deserialized = JsonSerializer.Deserialize<SearchResult>(cached);
+                return Ok(deserialized);
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Redis fetch failed");
-            }
-            var searchResult = await _searchService.SearchAsync(q, page, size);
-            var json = JsonSerializer.Serialize(searchResult);
+            var elasticResult = await _searchService.SearchAsync(q, page, size);
+            var json = JsonSerializer.Serialize(elasticResult);
             await _searchCache.SetCachedResultAsync(q, json, TimeSpan.FromMinutes(10));
-
-            return Ok(searchResult);
+            return Ok(elasticResult);
         }
 
         [HttpGet("health")]
         public IActionResult Health() => Ok("Search service is healthy 🚀");
+
+        
     }
 }

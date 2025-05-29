@@ -1,15 +1,35 @@
 using SearchService.Repositories;
 using SearchService.Services;
 using StackExchange.Redis;
-
+using Nest;
 var builder = WebApplication.CreateBuilder(args);
 
 // Dependency injection
-builder.Services.AddSingleton<ISearchRepository, InMemorySearchRepository>();
+//builder.Services.AddSingleton<ISearchRepository, InMemorySearchRepository>();
+builder.Services.AddSingleton<IElasticSearchRepository, ElasticSearchRepository>();
 builder.Services.AddSingleton<ISearchService, SearchService.Services.SearchService>();
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-    ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")));
-builder.Services.AddScoped<ISearchCache, RedisSearchCache>();
+var redisConnectionString = builder.Configuration.GetConnectionString("Redis") 
+                         ?? Environment.GetEnvironmentVariable("REDIS_CONNECTION") 
+                         ?? "redis:6379";
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp => 
+    ConnectionMultiplexer.Connect(redisConnectionString));
+
+var settings = new ConnectionSettings(new Uri("http://elasticsearch:9200"))
+    .DefaultIndex("products");
+builder.Services.AddSingleton<IElasticClient>(new ElasticClient(settings));
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp => 
+{
+    var configuration = ConfigurationOptions.Parse(redisConnectionString);
+    configuration.AbortOnConnectFail = false;
+    configuration.ConnectTimeout = 5000;
+    configuration.ReconnectRetryPolicy = new LinearRetry(1000);
+    return ConnectionMultiplexer.Connect(configuration);
+});
+builder.Services.AddSingleton<RedisSearchCache>();
+builder.Services.AddSingleton<ISearchCache>(sp => 
+    sp.GetRequiredService<RedisSearchCache>());
 
 builder.Services.AddControllers();
 var app = builder.Build();

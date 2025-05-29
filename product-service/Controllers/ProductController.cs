@@ -38,18 +38,26 @@ namespace ProductService.Controllers
 
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetProductById(string id)
+        public async Task<IActionResult> GetProduct(string id)
         {
-            var product = await _productService.GetByIdAsync(id);
-           
-            return Ok(product);
+            try
+            {
+                var product = await _productService.GetByIdAsync(id);
+                if (product == null)
+                    return NotFound($"Product {id} not found");
+                return Ok(product);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpPost]
         public async Task<ActionResult> CreateProduct(Product product)
         {
             await _productService.CreateAsync(product);
-            return CreatedAtAction(nameof(GetProductById), new { id = product.ProductId }, product);
+            return CreatedAtAction(nameof(GetProduct), new { id = product.ProductId }, product);
         }
 
         [HttpPut("{id}")]
