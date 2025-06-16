@@ -3,6 +3,7 @@ using ProductService.Services;
 using ProductService.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace ProductService.Controllers
 {
@@ -12,10 +13,11 @@ namespace ProductService.Controllers
     {
 
         private readonly IProductService _productService;
-
-        public ProductController(IProductService productService)
+        private readonly KafkaProducerService _producer;
+        public ProductController(IProductService productService, KafkaProducerService producer)
         {
             _productService = productService;
+            _producer = producer;
         }
 
         [HttpGet("health")]
@@ -57,6 +59,7 @@ namespace ProductService.Controllers
         public async Task<ActionResult> CreateProduct(Product product)
         {
             await _productService.CreateAsync(product);
+             await _producer.ProduceProductEventAsync("ProductCreated", product);
             return CreatedAtAction(nameof(GetProduct), new { id = product.ProductId }, product);
         }
 
@@ -68,20 +71,22 @@ namespace ProductService.Controllers
                 return NotFound();
 
             await _productService.UpdateAsync(id, updatedProduct);
+            await _producer.ProduceProductEventAsync("ProductUpdated", updatedProduct);
             return NoContent();
-        }
 
+        }
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(string id)
         {
             var existing = await _productService.GetByIdAsync(id);
             if (existing == null)
                 return NotFound();
-
+            await _producer.ProduceEventAsync("product-events", "ProductDeleted", new { ProductId = id });
             await _productService.DeleteAsync(id);
+            
             return NoContent();
         }
 
     }
-   
+
 }

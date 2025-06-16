@@ -2,6 +2,9 @@ using SearchService.Repositories;
 using SearchService.Services;
 using StackExchange.Redis;
 using Nest;
+using Confluent.Kafka;
+using System.Text.Json;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Dependency injection
@@ -19,7 +22,7 @@ var settings = new ConnectionSettings(new Uri("http://elasticsearch:9200"))
     .DefaultIndex("products");
 builder.Services.AddSingleton<IElasticClient>(new ElasticClient(settings));
 
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp => 
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {
     var configuration = ConfigurationOptions.Parse(redisConnectionString);
     configuration.AbortOnConnectFail = false;
@@ -27,6 +30,16 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     configuration.ReconnectRetryPolicy = new LinearRetry(1000);
     return ConnectionMultiplexer.Connect(configuration);
 });
+
+builder.Services.AddSingleton<ConsumerConfig>(sp => new ConsumerConfig
+{
+    BootstrapServers = builder.Configuration["Kafka:BootstrapServers"] ?? "kafka:9092",
+    GroupId = "search-service-group",
+    AutoOffsetReset = AutoOffsetReset.Earliest,
+    EnableAutoCommit = false,  // We'll manually commit after ES updates
+    EnableAutoOffsetStore = false
+});
+builder.Services.AddHostedService<KafkaConsumerService>();
 builder.Services.AddSingleton<RedisSearchCache>();
 builder.Services.AddSingleton<ISearchCache>(sp => 
     sp.GetRequiredService<RedisSearchCache>());

@@ -12,7 +12,7 @@ builder.Services.Configure<MongoDbSettings>(
     builder.Configuration.GetSection("MongoDbSettings"));
 
 builder.Services.AddSingleton<IProductService, ProductService.Services.ProductService>();
-
+builder.Services.AddSingleton<KafkaProducerService>();
 
 builder.Services.AddControllers();
 

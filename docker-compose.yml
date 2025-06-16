@@ -39,13 +39,16 @@ services:
     environment:
       - ASPNETCORE_URLS=http://+:5000
       - ConnectionStrings__Elasticsearch=http://elasticsearch:9200
-       - REDIS_CONNECTION=redis:6379  # Add this line
+      - REDIS_CONNECTION=redis:6379  # Add this line
+      - Kafka__BootstrapServers=kafka:9092
     ports:
       - "5001:5000"
     depends_on:
       elasticsearch:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      kafka:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
@@ -160,11 +163,13 @@ services:
       - MongoDbSettings__ConnectionString=mongodb://mongo:27017
       - MongoDbSettings__DatabaseName=ecommerce_db
       - MongoDbSettings__ProductCollectionName=products
+      - Kafka__BootstrapServers=kafka:9092
     ports:
       - "5007:5000"
     depends_on:
       - mongo
       - elasticsearch
+      - kafka 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 15s
@@ -250,6 +255,20 @@ services:
     networks:
       - ecommerce-net
 
+  zookeeper:
+      image: bitnami/zookeeper:latest
+      container_name: zookeeper
+      environment:
+        - ALLOW_ANONYMOUS_LOGIN=yes
+      ports:
+        - "2181:2181"
+      healthcheck:
+        test: ["CMD", "zkServer.sh", "status"]
+        interval: 15s
+        timeout: 5s
+        retries: 3
+
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.5.1
     container_name: elasticsearch
@@ -274,21 +293,22 @@ services:
     image: bitnami/kafka:latest
     container_name: kafka
     environment:
-      - KAFKA_CFG_PROCESS_ROLES=broker
-      - KAFKA_CFG_NODE_ID=1
-      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
-      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
-      - ALLOW_PLAINTEXT_LISTENER=yes
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
     ports:
       - "9092:9092"
+    depends_on:
+      - zookeeper
     healthcheck:
       test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
       interval: 15s
       timeout: 5s
-      retries: 3
+      retries: 4
     networks:
       - ecommerce-net
 
