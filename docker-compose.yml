@@ -1,6 +1,9 @@
 version: '3.8'
 
 services:
+  # ----------------------------------------------------------------
+  # API Gateway
+  # ----------------------------------------------------------------
   nginx:
     image: nginx:stable-alpine
     container_name: api-gateway
@@ -20,21 +23,23 @@ services:
       - recommendation
       - notification
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 15s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
+      timeout: 5s
+      retries: 3
     networks:
       - ecommerce-net
 
+  # ----------------------------------------------------------------
+  # Core Services
+  # ----------------------------------------------------------------
   search:
     build: ./search-service
     container_name: search-service
     environment:
       - ASPNETCORE_URLS=http://+:5000
       - ConnectionStrings__Elasticsearch=http://elasticsearch:9200
-      - REDIS_CONNECTION=redis:6379
+      - REDIS_CONNECTION=redis:6379  # Add this line
       - Kafka__BootstrapServers=kafka:9092
     ports:
       - "5001:5000"
@@ -48,9 +53,8 @@ services:
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 15s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
+      timeout: 5s
+      retries: 3
     networks:
       - ecommerce-net
 
@@ -64,16 +68,13 @@ services:
     ports:
       - "5002:5000"
     depends_on:
-      redis:
-        condition: service_healthy
-      kafka:
-        condition: service_healthy
+      - redis
+      - kafka
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 15s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
+      timeout: 5s
+      retries: 3
     networks:
       - ecommerce-net
 
@@ -87,16 +88,13 @@ services:
     ports:
       - "5003:5000"
     depends_on:
-      postgres:
-        condition: service_healthy
-      kafka:
-        condition: service_healthy
+      - postgres
+      - kafka
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 15s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
+      timeout: 5s
+      retries: 3
     networks:
       - ecommerce-net
 
@@ -109,14 +107,12 @@ services:
     ports:
       - "5004:5000"
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 15s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
+      timeout: 5s
+      retries: 3
     networks:
       - ecommerce-net
 
@@ -129,14 +125,12 @@ services:
     ports:
       - "5005:5000"
     depends_on:
-      mysql:
-        condition: service_healthy
+      - mysql
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 15s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
+      timeout: 5s
+      retries: 3
     networks:
       - ecommerce-net
 
@@ -149,18 +143,18 @@ services:
     ports:
       - "5006:5000"
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 15s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
+      timeout: 5s
+      retries: 3
     networks:
       - ecommerce-net
 
-  # Domain Services
+  # ----------------------------------------------------------------
+  # Domain-specific Services
+  # ----------------------------------------------------------------
   product:
     build: ./product-service
     container_name: product-service
@@ -173,18 +167,14 @@ services:
     ports:
       - "5007:5000"
     depends_on:
-      mongo:
-        condition: service_healthy
-      elasticsearch:
-        condition: service_healthy
-      kafka:
-        condition: service_healthy
+      - mongo
+      - elasticsearch
+      - kafka 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 15s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
+      timeout: 5s
+      retries: 3
     networks:
       - ecommerce-net
 
@@ -197,14 +187,12 @@ services:
     ports:
       - "5008:5000"
     depends_on:
-      redis:
-        condition: service_healthy
+      - redis
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 15s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
+      timeout: 5s
+      retries: 3
     networks:
       - ecommerce-net
 
@@ -218,16 +206,13 @@ services:
     ports:
       - "5009:5000"
     depends_on:
-      neo4j:
-        condition: service_healthy
-      kafka:
-        condition: service_healthy
+      - neo4j
+      - kafka
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 15s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
+      timeout: 5s
+      retries: 3
     networks:
       - ecommerce-net
 
@@ -241,20 +226,19 @@ services:
     ports:
       - "5010:5000"
     depends_on:
-      mongo:
-        condition: service_healthy
-      kafka:
-        condition: service_healthy
+      - mongo
+      - kafka
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 15s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
+      timeout: 5s
+      retries: 3
     networks:
       - ecommerce-net
 
-  # Core infrastructure
+  # ----------------------------------------------------------------
+  # Data Infrastructure
+  # ----------------------------------------------------------------
   redis:
     image: redis:7
     container_name: redis
@@ -264,10 +248,44 @@ services:
       - redis-data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
+      interval: 15s
       timeout: 5s
-      retries: 5
-      start_period: 60s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - ecommerce-net
+
+  zookeeper:
+      image: bitnami/zookeeper:latest
+      container_name: zookeeper
+      environment:
+        - ALLOW_ANONYMOUS_LOGIN=yes
+      ports:
+        - "2181:2181"
+      healthcheck:
+        test: ["CMD", "zkServer.sh", "status"]
+        interval: 15s
+        timeout: 5s
+        retries: 3
+
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.5.1
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health?wait_for_status=yellow"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
     networks:
       - ecommerce-net
 
@@ -275,36 +293,22 @@ services:
     image: bitnami/kafka:latest
     container_name: kafka
     environment:
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
-      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
     ports:
       - "9092:9092"
     depends_on:
-      zookeeper:
-        condition: service_healthy
+      - zookeeper
     healthcheck:
-      test: ["CMD", "kafka-topics.sh", "--bootstrap-server", "localhost:9092", "--list"]
-      interval: 20s
-      timeout: 10s
-      retries: 5
-      start_period: 80s
-    networks:
-      - ecommerce-net
-
-  zookeeper:
-    image: bitnami/zookeeper:latest
-    container_name: zookeeper
-    environment:
-      - ALLOW_ANONYMOUS_LOGIN=yes
-    ports:
-      - "2181:2181"
-    healthcheck:
-      test: ["CMD", "zkServer.sh", "status"]
-      interval: 10s
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 15s
       timeout: 5s
-      retries: 5
-      start_period: 60s
+      retries: 4
     networks:
       - ecommerce-net
 
@@ -321,26 +325,9 @@ services:
       - pg-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
-      interval: 10s
+      interval: 15s
       timeout: 5s
-      retries: 5
-      start_period: 60s
-    networks:
-      - ecommerce-net
-
-  mongo:
-    image: mongo:6
-    container_name: mongo
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
-    healthcheck:
-      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 60s
+      retries: 3
     networks:
       - ecommerce-net
 
@@ -356,40 +343,162 @@ services:
       - mysql-data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
+      interval: 15s
       timeout: 5s
-      retries: 5
-      start_period: 60s
+      retries: 3
     networks:
       - ecommerce-net
 
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.5.1
-    container_name: elasticsearch
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - xpack.security.http.ssl.enabled=false
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+  mongo:
+    image: mongo:6
+    container_name: mongo
     ports:
-      - "9200:9200"
+      - "27017:27017"
     volumes:
-      - es-data:/usr/share/elasticsearch/data
+      - mongo-data:/data/db
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9200"]
-      interval: 10s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - ecommerce-net
+
+  neo4j:
+    image: neo4j:5
+    container_name: neo4j
+    environment:
+      - NEO4J_AUTH=neo4j/secret123
+    ports:
+      - "7687:7687"
+      - "7474:7474"
+    volumes:
+      - neo4j-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7474"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - ecommerce-net
+
+  # ----------------------------------------------------------------
+  # UI Interfaces
+  # ----------------------------------------------------------------
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: redis-commander
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - ecommerce-net
+
+  elasticsearch-head:
+    image: mobz/elasticsearch-head:5
+    container_name: elasticsearch-head
+    ports:
+      - "9100:9100"
+    depends_on:
+      - elasticsearch
+    networks:
+      - ecommerce-net
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    ports:
+      - "8082:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    depends_on:
+      - kafka
+    restart: unless-stopped
+    networks:
+      - ecommerce-net
+
+  adminer:
+    image: adminer:latest
+    container_name: adminer
+    ports:
+      - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    networks:
+      - ecommerce-net
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express
+    ports:
+      - "8083:8081"
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: admin
+    depends_on:
+      - mongo
+    restart: unless-stopped
+    networks:
+      - ecommerce-net
+
+  neo4j-browser:
+    image: neo4j:5
+    container_name: neo4j-browser
+    environment:
+      - NEO4J_AUTH=neo4j/secret123
+    ports:
+      - "7475:7474"
+      - "7688:7687"
+    depends_on:
+      - neo4j
+    restart: unless-stopped
+    networks:
+      - ecommerce-net
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    networks:
+      - ecommerce-net
+
+  mysql-workbench:
+    image: mysql:8
+    container_name: mysql-workbench
+    command: ["sleep", "infinity"]
+    ports:
+      - "33060:3306"  # mapped differently to avoid conflict
+    environment:
+      - MYSQL_ROOT_PASSWORD=secret
+    depends_on:
+      - mysql
+    restart: unless-stopped
     networks:
       - ecommerce-net
 
 volumes:
   redis-data:
+  es-data:
   pg-data:
   mysql-data:
   mongo-data:
-  es-data:
+  neo4j-data:
 
 networks:
   ecommerce-net:
