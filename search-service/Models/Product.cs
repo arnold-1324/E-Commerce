@@ -5,46 +5,43 @@ namespace SearchService.Models
 {
     public record Product
     {
-        [JsonPropertyName("_id")]
-        public string Id { get; init; } = string.Empty;
-
-        [JsonPropertyName("product_id")]
+        [JsonPropertyName("ProductId")]
         public string ProductId { get; init; } = string.Empty;
 
-        [JsonPropertyName("name")]
+        [JsonPropertyName("Name")]
         public string Name { get; init; } = string.Empty;
 
-        [JsonPropertyName("description")]
+        [JsonPropertyName("Description")]
         public string Description { get; init; } = string.Empty;
 
-        [JsonPropertyName("price")]
+        [JsonPropertyName("Price")]
         public double Price { get; init; }
 
-        [JsonPropertyName("category")]
+        [JsonPropertyName("Category")]
         public string Category { get; init; } = string.Empty;
 
-        [JsonPropertyName("subcategory")]
+        [JsonPropertyName("Subcategory")]
         public string Subcategory { get; init; } = string.Empty;
 
-        [JsonPropertyName("attributes")]
+        [JsonPropertyName("Attributes")]
         public Dictionary<string, string> Attributes { get; init; } = new();
 
-        [JsonPropertyName("stock")]
+        [JsonPropertyName("Stock")]
         public int Stock { get; init; }
 
-        [JsonPropertyName("brand")]
+        [JsonPropertyName("Brand")]
         public string Brand { get; init; } = string.Empty;
 
-        [JsonPropertyName("rating")]
+        [JsonPropertyName("Rating")]
         public double Rating { get; init; }
 
-        [JsonPropertyName("tags")]
+        [JsonPropertyName("Tags")]
         public List<string> Tags { get; init; } = new();
 
-        [JsonPropertyName("related_products")]
+        [JsonPropertyName("RelatedProducts")]
         public List<string> RelatedProducts { get; init; } = new();
 
-        [JsonPropertyName("image_url")]
+        [JsonPropertyName("ImageUrl")]
         public string ImageUrl { get; init; } = string.Empty;
     }
 }

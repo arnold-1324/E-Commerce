@@ -11,22 +11,25 @@ namespace SearchService.Controllers
         private readonly ISearchService _searchService;
         private readonly ISearchCache _searchCache;
         private readonly ILogger<SearchController> _logger;
+        private readonly TrieAutocompleteService _autocompleteService;
 
-        public SearchController(ISearchService searchService, ISearchCache searchCache, ILogger<SearchController> logger)
+        public SearchController(ISearchService searchService, ISearchCache searchCache, ILogger<SearchController> logger, TrieAutocompleteService autocompleteService)
         {
             _searchService = searchService;
             _searchCache = searchCache;
             _logger = logger;
+            _autocompleteService = autocompleteService;
         }
 
         [HttpPost("index")]
         public async Task<IActionResult> Index([FromBody] Product product)
         {
-            if (product is null || string.IsNullOrWhiteSpace(product.Id))
-                return BadRequest("Product or Product.Id cannot be null.");
+            if (product is null || string.IsNullOrWhiteSpace(product.ProductId))
+                return BadRequest("Product or Product.ProductId cannot be null.");
 
             await _searchService.IndexAsync(product);
-            return Ok(new { Message = "Product indexed", ProductId = product.Id });
+            _autocompleteService.Insert(product.Name); 
+            return Ok(new { Message = "Product indexed", ProductId = product.ProductId });
         }
 
         [HttpGet("query")]
@@ -43,14 +46,29 @@ namespace SearchService.Controllers
                 return Ok(deserialized);
             }
             var elasticResult = await _searchService.SearchAsync(q, page, size);
-            var json = JsonSerializer.Serialize(elasticResult);
-            await _searchCache.SetCachedResultAsync(q, json, TimeSpan.FromMinutes(10));
+            if (elasticResult.TotalCount > 0 && elasticResult.Items.Any())
+            {
+                var json = JsonSerializer.Serialize(elasticResult);
+                await _searchCache.SetCachedResultAsync(q, json, TimeSpan.FromMinutes(10));
+            }
             return Ok(elasticResult);
         }
 
         [HttpGet("health")]
         public IActionResult Health() => Ok("Search service is healthy 🚀");
 
-        
+        [HttpGet("autocomplete")]
+        public IActionResult GetAutocompleteSuggestions([FromQuery] string prefix)
+        {
+            var results = _autocompleteService.GetSuggestions(prefix);
+            return Ok(results);
+        }
+
+        [HttpGet("trie-words")]
+        public IActionResult GetAllTrieWords()
+        {
+            var words = _autocompleteService.GetAllWords();
+            return Ok(words);
+        }
     }
 }

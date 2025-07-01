@@ -78,13 +78,24 @@ namespace ProductService.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(string id)
         {
-            var existing = await _productService.GetByIdAsync(id);
-            if (existing == null)
+            try
+            {
+                var existing = await _productService.GetByIdAsync(id);
+                if (existing == null)
+                    return NotFound();
+                await _producer.ProduceEventAsync("product-events", "ProductDeleted", new { ProductId = id });
+                await _productService.DeleteAsync(id);
+                return NoContent();
+            }
+            catch (KeyNotFoundException)
+            {
                 return NotFound();
-            await _producer.ProduceEventAsync("product-events", "ProductDeleted", new { ProductId = id });
-            await _productService.DeleteAsync(id);
-            
-            return NoContent();
+            }
+            catch (Exception ex)
+            {
+                // log ex
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
     }

@@ -1,35 +1,19 @@
 # Dockerfile for order-service
 
-###################################
-### 1) BUILD ###
+# ----------- Build Stage -----------
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# copy & restore only the project file
 COPY order-service.csproj ./
 RUN dotnet restore order-service.csproj
 
-# install curl so healthcheck will work
-RUN apt-get update \
- && apt-get install -y curl --no-install-recommends \
- && rm -rf /var/lib/apt/lists/*
-
-# copy everything else & publish
 COPY . ./
-RUN dotnet publish order-service.csproj \
-    -c Release \
-    -o /app/publish \
-    && ls -l /app/publish
+RUN dotnet publish order-service.csproj -c Release -o /app/publish
 
-###################################
-### 2) RUNTIME ###
+# ----------- Runtime Stage -----------
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
-
-# pull in published output
-COPY --from=build /app/publish ./
-
-# expose & run
+COPY --from=build /app/publish .
 ENV ASPNETCORE_URLS=http://+:5000
 EXPOSE 5000
 ENTRYPOINT ["dotnet", "order-service.dll"]

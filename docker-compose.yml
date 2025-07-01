@@ -57,6 +57,7 @@ services:
       retries: 3
     networks:
       - ecommerce-net
+    restart: unless-stopped
 
   cart:
     build: ./cart-service
@@ -64,12 +65,12 @@ services:
     environment:
       - ASPNETCORE_URLS=http://+:5000
       - ConnectionStrings__Redis=redis:6379
-      - Kafka__BootstrapServers=kafka:9092
+      # - Kafka__BootstrapServers=kafka:9092
     ports:
       - "5002:5000"
     depends_on:
       - redis
-      - kafka
+      # - kafka
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 15s
@@ -84,12 +85,12 @@ services:
     environment:
       - ASPNETCORE_URLS=http://+:5000
       - ConnectionStrings__Postgres=postgres:5432
-      - Kafka__BootstrapServers=kafka:9092
+      # - Kafka__BootstrapServers=kafka:9092
     ports:
       - "5003:5000"
     depends_on:
       - postgres
-      - kafka
+      # - kafka
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 15s
@@ -177,6 +178,7 @@ services:
       retries: 3
     networks:
       - ecommerce-net
+    restart: unless-stopped
 
   wishlist:
     build: ./wishlist-service
@@ -202,12 +204,12 @@ services:
     environment:
       - ASPNETCORE_URLS=http://+:5000
       - ConnectionStrings__Neo4j=neo4j://neo4j:7687
-      - Kafka__BootstrapServers=kafka:9092
+      # - Kafka__BootstrapServers=kafka:9092
     ports:
       - "5009:5000"
     depends_on:
       - neo4j
-      - kafka
+      # - kafka
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 15s
@@ -222,12 +224,12 @@ services:
     environment:
       - ASPNETCORE_URLS=http://+:5000
       - ConnectionStrings__MongoDB=mongodb://mongo:27017
-      - Kafka__BootstrapServers=kafka:9092
+      # - Kafka__BootstrapServers=kafka:9092
     ports:
       - "5010:5000"
     depends_on:
       - mongo
-      - kafka
+      # - kafka
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 15s
@@ -291,7 +293,7 @@ services:
 
   kafka:
     image: bitnami/kafka:latest
-    container_name: kafka
+    container_name: kafka  
     environment:
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
@@ -305,7 +307,7 @@ services:
     depends_on:
       - zookeeper
     healthcheck:
-      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      test: ["CMD", "bash", "-c", "echo > /dev/tcp/localhost/9092"]
       interval: 15s
       timeout: 5s
       retries: 4

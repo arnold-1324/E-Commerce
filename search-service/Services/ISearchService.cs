@@ -6,6 +6,7 @@ namespace SearchService.Services
     public interface ISearchService
     {
         Task IndexAsync(Product product);
+        Task<List<Product>> GetAllProductsAsync();
         Task<SearchResult> SearchAsync(string query, int page, int size);
     }
 }

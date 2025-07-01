@@ -13,7 +13,7 @@ namespace SearchService.Repositories
 
         public Task AddOrUpdateAsync(Product product)
         {
-            _store.AddOrUpdate(product.Id, product, (_, __) => product);
+            _store.AddOrUpdate(product.ProductId, product, (_, __) => product);
             return Task.CompletedTask;
         }
 
@@ -22,9 +22,7 @@ namespace SearchService.Repositories
             var result = ids
                 .Where(id => _store.TryGetValue(id, out _))
                 .Select(id => _store[id])
-                .ToList()
-                .AsReadOnly();
-
+                .ToList();
             return Task.FromResult((IReadOnlyList<Product>)result);
         }
 

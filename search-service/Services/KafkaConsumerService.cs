@@ -1,6 +1,7 @@
 using Confluent.Kafka;
 using Nest;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using SearchService.Models;
 namespace SearchService.Services
 {
@@ -8,7 +9,9 @@ namespace SearchService.Services
     {
         private readonly IConsumer<Ignore, string> _consumer;
         private readonly IElasticClient _elasticClient;
+       
         private readonly ISearchCache _cache;
+        
         private readonly ILogger<KafkaConsumerService> _logger;
         private const string ProductIndexName = "products";
 
@@ -46,8 +49,45 @@ namespace SearchService.Services
                     try
                     {
                         var consumerResult = _consumer.Consume(stoppingToken);
-                        var productEvent = JsonSerializer.Deserialize<ProductEvent>(consumerResult.Message.Value);
-                        _logger.LogInformation($"Received message: {consumerResult.Message.Value}");
+                        var root = JsonNode.Parse(consumerResult.Message.Value);
+                        var eventType = root?["EventType"]?.GetValue<string>() ?? string.Empty;
+                        var payload = root?["Payload"];
+                        var productId = root?["ProductId"]?.GetValue<string>() ?? payload?["ProductId"]?.GetValue<string>() ?? string.Empty;
+                        _logger.LogInformation("Raw payload: {Payload}", payload?.ToJsonString());
+                        _logger.LogInformation("Received message: {Message}", consumerResult.Message.Value);
+
+                        ProductEvent productEvent = null;
+                        if (payload != null)
+                        {
+                            // For ProductCreated/Updated, payload is a full product; for Deleted, just ProductId
+                            if (eventType == "ProductDeleted")
+                            {
+                                productEvent = new ProductEvent
+                                {
+                                    EventType = eventType,
+                                    ProductId = productId
+                                };
+                            }
+                            else
+                            {
+                                productEvent = payload.Deserialize<ProductEvent>();
+                                if (productEvent != null)
+                                {
+                                    productEvent.EventType = eventType;
+                                    productEvent.ProductId = productId;
+                                }
+                            }
+                        }
+
+                        _logger.LogInformation("Deserialized ProductEvent: {ProductEvent}", JsonSerializer.Serialize(productEvent));
+                        if (productEvent?.Product != null)
+                        {
+                            _logger.LogInformation("Deserialized Product object: {ProductJson}", JsonSerializer.Serialize(productEvent.Product));
+                        }
+                        else if (eventType != "ProductDeleted")
+                        {
+                            _logger.LogWarning("Product is null or invalid in ProductEvent");
+                        }
 
                         if (productEvent == null)
                         {
@@ -106,6 +146,18 @@ namespace SearchService.Services
 
         private async Task ProcessUpsertAsync(ProductEvent message)
         {
+            // Type check and log
+            if (message.Product == null)
+            {
+                _logger.LogError("Product is null in ProductEvent");
+                throw new Exception("Product is null in ProductEvent");
+            }
+            _logger.LogInformation("Type of message.Product: {Type}", message.Product.GetType().FullName);
+            _logger.LogInformation("Serialized Product object to be indexed: {ProductJson}", System.Text.Json.JsonSerializer.Serialize(message.Product));
+            // Console output for debugging
+            Console.WriteLine($"[DEBUG] Type of message.Product: {message.Product.GetType().FullName}");
+            Console.WriteLine($"[DEBUG] Serialized Product object to be indexed: {System.Text.Json.JsonSerializer.Serialize(message.Product)}");
+
             var esResponse = await _elasticClient.IndexAsync(
                 message.Product,
                 i => i.Index(ProductIndexName).Id(message.ProductId)
@@ -119,6 +171,7 @@ namespace SearchService.Services
             if (message.Product != null)
             {
                 await _cache.SetProductAsync(message.Product, TimeSpan.FromMinutes(30));
+                _logger.LogInformation($"Product {message.Product.ProductId} indexed successfully in Elasticsearch and cached.");
             }
             else
             {
@@ -128,14 +181,14 @@ namespace SearchService.Services
 
         private async Task ProcessDeleteAsync(string productId)
         {
-            // Remove from Elasticsearch
+            // Remove from cache first
+            await _cache.RemoveCachedSearchResultsContainingProductAsync(productId);
+            // Then remove from Elasticsearch
             var esResponse = await _elasticClient.DeleteAsync<Product>(productId, d => d.Index(ProductIndexName));
             if (!esResponse.IsValid)
             {
                 _logger.LogError($"Failed to delete product {productId} from Elasticsearch: {esResponse.ServerError}");
             }
-            // Remove from cache
-            await _cache.RemoveProductAsync(productId);
         }
 
         public override void Dispose()

@@ -66,7 +66,15 @@ namespace SearchService.Services
 
         public async Task RemoveProductAsync(string productId)
         {
-            await RemoveAsync($"product:{productId}");
+            try
+            {
+                await RemoveAsync($"product:{productId}");
+                _logger.LogInformation("Removed product {ProductId} from Redis cache", productId);
+            }
+            catch (RedisException ex)
+            {
+                _logger.LogError(ex, "Redis error removing product {ProductId}", productId);
+            }
         }
 
         /* Search Query Cache Operations */
@@ -142,6 +150,22 @@ namespace SearchService.Services
                 throw;
             }
         }
+
+        public async Task RemoveCachedSearchResultsContainingProductAsync(string productId)
+        {
+            var endpoints = _redis.GetEndPoints();
+            var server = _redis.GetServer(endpoints[0]);
+            foreach (var key in server.Keys(pattern: "search:*"))
+            {
+                var json = await _db.StringGetAsync(key);
+                if (json.HasValue && json.ToString().Contains(productId))
+                {
+                    await _db.KeyDeleteAsync(key);
+                    _logger.LogInformation("Removed cached search result key {Key} containing deleted product {ProductId}", key, productId);
+                }
+            }
+        }
+
 
         private async Task RemoveAsync(string key)
         {

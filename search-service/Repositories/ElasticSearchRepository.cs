@@ -28,14 +28,14 @@ namespace SearchService.Repositories
                 .Query(q => q
                     .MultiMatch(m => m
                         .Fields(f => f
-                            .Field(p => p.Name)
-                            .Field(p => p.Description)
-                            .Field(p => p.Tags)
-                            .Field(p => p.Category)
-                            .Field(p => p.Subcategory)
-                            .Field(p => p.Brand)
-                            .Field(p => p.Attributes)
-                        )
+                        .Field("name")
+                        .Field("description")
+                        .Field("tags")
+                        .Field("category")
+                        .Field("subcategory")
+                        .Field("brand")
+                        .Field("attributes")
+                    )
                         .Query(query)
                     )
                 )
