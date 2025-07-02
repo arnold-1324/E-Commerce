@@ -9,26 +9,26 @@ namespace SearchService.Services
     {
         private readonly IConsumer<Ignore, string> _consumer;
         private readonly IElasticClient _elasticClient;
-       
+
         private readonly ISearchCache _cache;
-        
+
         private readonly ILogger<KafkaConsumerService> _logger;
         private const string ProductIndexName = "products";
 
-        public KafkaConsumerService(IConfiguration configuration,IElasticClient elasticClient,ISearchCache cache, ILogger<KafkaConsumerService> logger)
+        public KafkaConsumerService(IConfiguration configuration, IElasticClient elasticClient, ISearchCache cache, ILogger<KafkaConsumerService> logger)
         {
             _elasticClient = elasticClient;
             _cache = cache;
             _logger = logger;
 
-           var consumerConfig = new ConsumerConfig
+            var consumerConfig = new ConsumerConfig
             {
                 BootstrapServers = configuration["Kafka:BootstrapServers"] ?? "localhost:9092",
                 GroupId = "search-service-group",
                 AutoOffsetReset = AutoOffsetReset.Earliest,
-                EnableAutoCommit = false, 
+                EnableAutoCommit = false,
                 EnableAutoOffsetStore = false,
-                MaxPollIntervalMs = 300000 
+                MaxPollIntervalMs = 300000
             };
 
             _consumer = new ConsumerBuilder<Ignore, string>(consumerConfig)
@@ -98,8 +98,6 @@ namespace SearchService.Services
                         switch (productEvent.EventType)
                         {
                             case "ProductCreated":
-                                await ProcessCreateAsync(productEvent);
-                                break;
                             case "ProductUpdated":
                                 await ProcessUpsertAsync(productEvent);
                                 break;
@@ -136,34 +134,12 @@ namespace SearchService.Services
                             .NumberOfShards(2)
                             .NumberOfReplicas(1)));
                 }
-                
+
             }
             catch (Exception ex)
             {
                 _logger.LogCritical(ex, "Failed to initialize Elasticsearch index");
                 throw;
-            }
-        }
-
-        private async Task ProcessCreateAsync(ProductEvent message)
-        {
-             if (message.Product == null)
-            {
-                _logger.LogError("Product is null in ProductEvent");
-                throw new Exception("Product is null in ProductEvent");
-            }
-            _logger.LogInformation("Type of message.Product: {Type}", message.Product.GetType().FullName);
-            _logger.LogInformation("Serialized Product object to be indexed: {ProductJson}", System.Text.Json.JsonSerializer.Serialize(message.Product));
-           
-
-            var esResponse = await _elasticClient.IndexAsync(
-                message.Product,
-                i => i.Index(ProductIndexName).Id(message.ProductId)
-            );
-
-            if (!esResponse.IsValid)
-            {
-                throw new Exception($"ES index failed: {esResponse.ServerError}");
             }
         }
 
@@ -177,7 +153,7 @@ namespace SearchService.Services
             }
             _logger.LogInformation("Type of message.Product: {Type}", message.Product.GetType().FullName);
             _logger.LogInformation("Serialized Product object to be indexed: {ProductJson}", System.Text.Json.JsonSerializer.Serialize(message.Product));
-           
+
 
             var esResponse = await _elasticClient.IndexAsync(
                 message.Product,
@@ -189,7 +165,7 @@ namespace SearchService.Services
                 throw new Exception($"ES index failed: {esResponse.ServerError}");
             }
 
-            if (message.Product != null)
+            if (message.Product != null && message.EventType=="ProductUpdated")
             {
                 await _cache.SetProductAsync(message.Product, TimeSpan.FromMinutes(30));
                 _logger.LogInformation($"Product {message.Product.ProductId} indexed successfully in Elasticsearch and cached.");

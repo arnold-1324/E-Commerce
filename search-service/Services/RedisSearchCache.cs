@@ -4,6 +4,7 @@ using System;
 using System.Text.Json;
 using System.Threading.Tasks;
 using SearchService.Models;
+using System.Text.Json;
 
 namespace SearchService.Services
 {
@@ -39,8 +40,10 @@ namespace SearchService.Services
         public async Task SetProductAsync(Product product, TimeSpan? expiry = null)
         {
             _logger.LogInformation("Writing product to Redis: {ProductId}", product.ProductId); // ✅ ADD THIS
-           await UpdateRedisCacheAsync($"search:{product.Name}", product, expiry);
- 
+            await UpdateRawProductCacheAsync($"search:{product.Name.Trim()}", product, expiry);
+
+
+
         }
 
 
@@ -101,7 +104,8 @@ namespace SearchService.Services
                 await _db.StringSetAsync(
                     $"search:{query}",
                     resultJson,
-                    expiry ?? _defaultExpiry);
+                    expiry ?? _defaultExpiry,
+                    when: When.NotExists);
             }
             catch (RedisException ex)
             {
@@ -110,23 +114,36 @@ namespace SearchService.Services
         }
 
 
-        public async Task UpdateRedisCacheAsync(string key, object value, TimeSpan? expiry = null)
+        public async Task UpdateRawProductCacheAsync(string key, Product updatedProduct, TimeSpan? expiry = null)
         {
             try
             {
-                await _db.StringSetAsync(
-                    key,
-                    JsonSerializer.Serialize(value),
-                    expiry ?? _defaultExpiry);
+                key = key.Trim();
+                var exists = await _db.KeyExistsAsync(key);
+                if (!exists)
+                {
+                    _logger.LogWarning("⚠️ Redis key not found: {Key}", key);
+                    return;
+                }
 
-                _logger.LogInformation("✅ Redis key updated: {Key}", key);
+                var serialized = JsonSerializer.Serialize(updatedProduct);
+                await _db.StringSetAsync(key, serialized, expiry ?? _defaultExpiry);
+
+                _logger.LogInformation("✅ Redis key {Key} updated with raw Product object", key);
+
+                _logger.LogInformation("Updated Product object: {@Product}", updatedProduct); // use @ to expand object
+                _logger.LogInformation("Updated Product JSON: {Serialized}", serialized);
+
+
             }
             catch (RedisException ex)
             {
-                _logger.LogError(ex, "❌ Redis error updating key: {Key}", key);
+                _logger.LogError(ex, "❌ Redis error updating product key: {Key}", key);
                 throw;
             }
         }
+
+
 
         public async Task<bool> IsHealthyAsync()
         {
@@ -156,7 +173,7 @@ namespace SearchService.Services
         }
 
 
-       
+
 
         public async Task RemoveCachedSearchResultsContainingProductAsync(string productId)
         {
