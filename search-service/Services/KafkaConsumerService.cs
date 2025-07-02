@@ -98,6 +98,8 @@ namespace SearchService.Services
                         switch (productEvent.EventType)
                         {
                             case "ProductCreated":
+                                await ProcessCreateAsync(productEvent);
+                                break;
                             case "ProductUpdated":
                                 await ProcessUpsertAsync(productEvent);
                                 break;
@@ -143,6 +145,27 @@ namespace SearchService.Services
             }
         }
 
+        private async Task ProcessCreateAsync(ProductEvent message)
+        {
+             if (message.Product == null)
+            {
+                _logger.LogError("Product is null in ProductEvent");
+                throw new Exception("Product is null in ProductEvent");
+            }
+            _logger.LogInformation("Type of message.Product: {Type}", message.Product.GetType().FullName);
+            _logger.LogInformation("Serialized Product object to be indexed: {ProductJson}", System.Text.Json.JsonSerializer.Serialize(message.Product));
+           
+
+            var esResponse = await _elasticClient.IndexAsync(
+                message.Product,
+                i => i.Index(ProductIndexName).Id(message.ProductId)
+            );
+
+            if (!esResponse.IsValid)
+            {
+                throw new Exception($"ES index failed: {esResponse.ServerError}");
+            }
+        }
 
         private async Task ProcessUpsertAsync(ProductEvent message)
         {
@@ -154,9 +177,7 @@ namespace SearchService.Services
             }
             _logger.LogInformation("Type of message.Product: {Type}", message.Product.GetType().FullName);
             _logger.LogInformation("Serialized Product object to be indexed: {ProductJson}", System.Text.Json.JsonSerializer.Serialize(message.Product));
-            // Console output for debugging
-            Console.WriteLine($"[DEBUG] Type of message.Product: {message.Product.GetType().FullName}");
-            Console.WriteLine($"[DEBUG] Serialized Product object to be indexed: {System.Text.Json.JsonSerializer.Serialize(message.Product)}");
+           
 
             var esResponse = await _elasticClient.IndexAsync(
                 message.Product,

@@ -15,7 +15,7 @@ namespace SearchService.Services
         private readonly TimeSpan _defaultExpiry;
 
         public RedisSearchCache(
-            IConnectionMultiplexer redis, 
+            IConnectionMultiplexer redis,
             ILogger<RedisSearchCache> logger,
             IConfiguration configuration)
         {
@@ -28,18 +28,21 @@ namespace SearchService.Services
 
         private void SetupConnectionHandlers()
         {
-            _redis.ConnectionFailed += (_, e) => 
+            _redis.ConnectionFailed += (_, e) =>
                 _logger.LogWarning("Redis connection failed: {FailureType}", e.FailureType);
-            
-            _redis.ConnectionRestored += (_, e) => 
+
+            _redis.ConnectionRestored += (_, e) =>
                 _logger.LogInformation("Redis connection restored");
         }
 
         /* Product Cache Operations */
         public async Task SetProductAsync(Product product, TimeSpan? expiry = null)
         {
-            await SetAsync($"product:{product.ProductId}", product, expiry);
+            _logger.LogInformation("Writing product to Redis: {ProductId}", product.ProductId); // ✅ ADD THIS
+           await UpdateRedisCacheAsync($"search:{product.Name}", product, expiry);
+ 
         }
+
 
         public async Task<Product?> GetProductAsync(string productId)
         {
@@ -47,8 +50,8 @@ namespace SearchService.Services
             try
             {
                 var json = await _db.StringGetAsync(key);
-                return json.HasValue 
-                    ? JsonSerializer.Deserialize<Product>(json!) 
+                return json.HasValue
+                    ? JsonSerializer.Deserialize<Product>(json!)
                     : null;
             }
             catch (JsonException ex)
@@ -96,8 +99,8 @@ namespace SearchService.Services
             try
             {
                 await _db.StringSetAsync(
-                    $"search:{query}", 
-                    resultJson, 
+                    $"search:{query}",
+                    resultJson,
                     expiry ?? _defaultExpiry);
             }
             catch (RedisException ex)
@@ -106,7 +109,25 @@ namespace SearchService.Services
             }
         }
 
-        
+
+        public async Task UpdateRedisCacheAsync(string key, object value, TimeSpan? expiry = null)
+        {
+            try
+            {
+                await _db.StringSetAsync(
+                    key,
+                    JsonSerializer.Serialize(value),
+                    expiry ?? _defaultExpiry);
+
+                _logger.LogInformation("✅ Redis key updated: {Key}", key);
+            }
+            catch (RedisException ex)
+            {
+                _logger.LogError(ex, "❌ Redis error updating key: {Key}", key);
+                throw;
+            }
+        }
+
         public async Task<bool> IsHealthyAsync()
         {
             try
@@ -134,22 +155,8 @@ namespace SearchService.Services
             }
         }
 
-        
-        private async Task SetAsync(string key, object value, TimeSpan? expiry = null)
-        {
-            try
-            {
-                await _db.StringSetAsync(
-                    key, 
-                    JsonSerializer.Serialize(value), 
-                    expiry ?? _defaultExpiry);
-            }
-            catch (RedisException ex)
-            {
-                _logger.LogError(ex, "Redis error setting {Key}", key);
-                throw;
-            }
-        }
+
+       
 
         public async Task RemoveCachedSearchResultsContainingProductAsync(string productId)
         {
