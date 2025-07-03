@@ -1,47 +1,49 @@
-﻿using System.Collections.Generic;
-using System.Text.Json.Serialization;
+﻿// src/Models/Product.cs
+using System.Collections.Generic;
+using Nest;
 
 namespace SearchService.Models
 {
-    public record Product
+    public class Product
     {
-        [JsonPropertyName("ProductId")]
-        public string ProductId { get; init; } = string.Empty;
+        [Keyword(Name = "product_id")]
+        public string ProductId { get; set; } = string.Empty;
 
-        [JsonPropertyName("Name")]
-        public string Name { get; init; } = string.Empty;
+        [Text(Name = "name")]
+        public string Name { get; set; } = string.Empty;
 
-        [JsonPropertyName("Description")]
-        public string Description { get; init; } = string.Empty;
+        [Text(Name = "description")]
+        public string Description { get; set; } = string.Empty;
 
-        [JsonPropertyName("Price")]
-        public double Price { get; init; }
+        // Fully qualify Nest.NumberType so it never tries to bind to System.Type
+        [Number(Name = "price", Type = Nest.NumberType.Float)]
+        public double Price { get; set; }
 
-        [JsonPropertyName("Category")]
-        public string Category { get; init; } = string.Empty;
+        [Keyword(Name = "category")]
+        public string Category { get; set; } = string.Empty;
 
-        [JsonPropertyName("Subcategory")]
-        public string Subcategory { get; init; } = string.Empty;
+        [Keyword(Name = "subcategory")]
+        public string Subcategory { get; set; } = string.Empty;
 
-        [JsonPropertyName("Attributes")]
-        public Dictionary<string, string> Attributes { get; init; } = new();
+        [Object(Name = "attributes")]
+        public Dictionary<string, string> Attributes { get; set; } = new();
 
-        [JsonPropertyName("Stock")]
-        public int Stock { get; init; }
+        [Number(Name = "stock", Type = Nest.NumberType.Integer)]
+        public int Stock { get; set; }
 
-        [JsonPropertyName("Brand")]
-        public string Brand { get; init; } = string.Empty;
+        [Keyword(Name = "brand")]
+        public string Brand { get; set; } = string.Empty;
 
-        [JsonPropertyName("Rating")]
-        public double Rating { get; init; }
+        [Number(Name = "rating", Type = Nest.NumberType.Float)]
+        public double Rating { get; set; }
 
-        [JsonPropertyName("Tags")]
-        public List<string> Tags { get; init; } = new();
+        [Keyword(Name = "tags")]
+        public List<string> Tags { get; set; } = new();
 
-        [JsonPropertyName("RelatedProducts")]
-        public List<string> RelatedProducts { get; init; } = new();
+        [Keyword(Name = "related_products")]
+        public List<string> RelatedProducts { get; set; } = new();
 
-        [JsonPropertyName("ImageUrl")]
-        public string ImageUrl { get; init; } = string.Empty;
+        [Text(Name = "image_url")]
+        public string ImageUrl { get; set; } = string.Empty;
     }
 }

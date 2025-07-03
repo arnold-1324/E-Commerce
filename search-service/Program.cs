@@ -1,69 +1,67 @@
 using SearchService.Repositories;
 using SearchService.Services;
+using SearchService.Utils;
 using StackExchange.Redis;
 using Nest;
 using Confluent.Kafka;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Dependency injection
-//builder.Services.AddSingleton<ISearchRepository, InMemorySearchRepository>();
+// Elasticsearch Client
+var esUri = new Uri(builder.Configuration["Elasticsearch:Url"] ?? "http://elasticsearch:9200");
+var settings = new ConnectionSettings(esUri)
+    .DefaultIndex("products");
+builder.Services.AddSingleton<IElasticClient>(_ => new ElasticClient(settings));
+
+// Your repo & services
 builder.Services.AddSingleton<IElasticSearchRepository, ElasticSearchRepository>();
-builder.Services.AddSingleton<ISearchService>(sp =>
-{
-    var repo = sp.GetRequiredService<IElasticSearchRepository>();
-    var elasticClient = sp.GetRequiredService<IElasticClient>();
-    return new SearchService.Services.SearchService(repo, elasticClient);
-});
-var redisConnectionString = builder.Configuration.GetConnectionString("Redis") 
-                         ?? Environment.GetEnvironmentVariable("REDIS_CONNECTION") 
-                         ?? "redis:6379";
 
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp => 
-    ConnectionMultiplexer.Connect(redisConnectionString));
 
-var settings = new ConnectionSettings(new Uri("http://elasticsearch:9200"))
-    .DefaultIndex("products")
-    .EnableDebugMode()
-    .PrettyJson();
+builder.Services.AddSingleton<ISearchService, SearchService.Services.SearchService>();
 
-builder.Services.AddSingleton<IElasticClient>(new ElasticClient(settings));
-
+// Redis
+var redisConn = builder.Configuration.GetConnectionString("Redis") ?? "redis:6379";
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {
-    var configuration = ConfigurationOptions.Parse(redisConnectionString);
-    configuration.AbortOnConnectFail = false;
-    configuration.ConnectTimeout = 5000;
-    configuration.ReconnectRetryPolicy = new LinearRetry(1000);
-    return ConnectionMultiplexer.Connect(configuration);
+    var opts = ConfigurationOptions.Parse(redisConn);
+    opts.AbortOnConnectFail = false;
+    opts.ConnectTimeout = 5000;
+    opts.ReconnectRetryPolicy = new LinearRetry(1000);
+    return ConnectionMultiplexer.Connect(opts);
 });
 
-
-
+// Kafka Consumer Config
 builder.Services.AddSingleton<ConsumerConfig>(sp => new ConsumerConfig
 {
-    BootstrapServers = builder.Configuration["Kafka:BootstrapServers"] ?? "kafka:9092",
+    BootstrapServers = builder.Configuration.GetValue<string>("Kafka:BootstrapServers") ?? "kafka:9092",
     GroupId = "search-service-group",
     AutoOffsetReset = AutoOffsetReset.Earliest,
-    EnableAutoCommit = false,  // We'll manually commit after ES updates
+    EnableAutoCommit = false,
     EnableAutoOffsetStore = false
 });
+
+// Caching, autocomplete, hosted consumer
+builder.Services.AddSingleton<RedisSearchCache>();
+builder.Services.AddSingleton<ISearchCache>(sp => sp.GetRequiredService<RedisSearchCache>());
 builder.Services.AddSingleton<TrieAutocompleteService>();
 builder.Services.AddHostedService<KafkaConsumerService>();
-builder.Services.AddSingleton<RedisSearchCache>();
-builder.Services.AddSingleton<ISearchCache>(sp => 
-    sp.GetRequiredService<RedisSearchCache>());
 
+// Controllers
 builder.Services.AddControllers();
+
 var app = builder.Build();
+
+// Preload Trie on startup
 app.Lifetime.ApplicationStarted.Register(() =>
 {
     Task.Run(async () =>
     {
         using var scope = app.Services.CreateScope();
         var searchService = scope.ServiceProvider.GetRequiredService<ISearchService>();
-        var trieService = scope.ServiceProvider.GetRequiredService<TrieAutocompleteService>();
+        var trieService   = scope.ServiceProvider.GetRequiredService<TrieAutocompleteService>();
 
         var allProducts = await searchService.GetAllProductsAsync();
         foreach (var product in allProducts)
@@ -75,7 +73,6 @@ app.Lifetime.ApplicationStarted.Register(() =>
         Console.WriteLine($"✅ Trie preloaded with {allProducts.Count} product names.");
     });
 });
-
 
 app.UseHttpsRedirection();
 app.MapControllers();

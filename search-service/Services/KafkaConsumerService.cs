@@ -167,6 +167,7 @@ namespace SearchService.Services
 
             if (message.Product != null && message.EventType=="ProductUpdated")
             {
+                _logger.LogInformation($"Product {message.Product} indexed successfully in Elasticsearch.");
                 await _cache.SetProductAsync(message.Product, TimeSpan.FromMinutes(30));
                 _logger.LogInformation($"Product {message.Product.ProductId} indexed successfully in Elasticsearch and cached.");
             }
