@@ -16,7 +16,7 @@ namespace SearchService.Models
         public string Description { get; set; } = string.Empty;
 
         // Fully qualify Nest.NumberType so it never tries to bind to System.Type
-        [Number(Name = "price", Type = Nest.NumberType.Float)]
+        [Number(Name = "price")]
         public double Price { get; set; }
 
         [Keyword(Name = "category")]
@@ -28,13 +28,13 @@ namespace SearchService.Models
         [Object(Name = "attributes")]
         public Dictionary<string, string> Attributes { get; set; } = new();
 
-        [Number(Name = "stock", Type = Nest.NumberType.Integer)]
+        [Number(Name = "stock")]
         public int Stock { get; set; }
 
         [Keyword(Name = "brand")]
         public string Brand { get; set; } = string.Empty;
 
-        [Number(Name = "rating", Type = Nest.NumberType.Float)]
+        [Number(Name = "rating")]
         public double Rating { get; set; }
 
         [Keyword(Name = "tags")]

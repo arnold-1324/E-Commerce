@@ -41,7 +41,8 @@ namespace SearchService.Services
         {
             // _logger.LogInformation("Writing product to Redis: {ProductId}", product.ProductId); // ✅ CORRECT
             // _logger.LogInformation("🧾 Full product details: {Name}", product.Name);
-            await UpdateRawProductCacheAsync($"search:{product.Name.Trim()}", product, expiry);
+            //  await UpdateRawProductCacheAsync($"search:{product.Name.Trim()}", product, expiry);
+            await RemoveCachedSearchResultsContainingProductAsync(product.ProductId);
 
         }
 
