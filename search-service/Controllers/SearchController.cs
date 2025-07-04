@@ -61,6 +61,10 @@ namespace SearchService.Controllers
         public IActionResult GetAutocompleteSuggestions([FromQuery] string prefix)
         {
             _logger.LogInformation("Received autocomplete request for prefix: {Prefix}", prefix.ToLowerInvariant());
+            if (string.IsNullOrWhiteSpace(prefix))
+            {
+                return ok([]);
+            }
             var results = _autocompleteService.GetSuggestions(prefix.ToLowerInvariant());
             return Ok(results);
         }
