@@ -14,6 +14,7 @@ namespace SearchService.Services
         private readonly ILogger<RedisSearchCache> _logger;
         private readonly IDatabase _db;
         private readonly TimeSpan _defaultExpiry;
+        private const string HashKey = "sku_lookup";
 
         public RedisSearchCache(
             IConnectionMultiplexer redis,
@@ -43,8 +44,11 @@ namespace SearchService.Services
             // _logger.LogInformation("🧾 Full product details: {Name}", product.Name);
             //  await UpdateRawProductCacheAsync($"search:{product.Name.Trim()}", product, expiry);
             await RemoveCachedSearchResultsContainingProductAsync(product.ProductId);
-
+            await SetProductInSkuLookupAsync(product);
         }
+
+
+
 
 
         public async Task<Product?> GetProductAsync(string productId)
@@ -230,6 +234,25 @@ namespace SearchService.Services
                 _logger.LogError(ex, "Redis error removing {Key}", key);
                 throw;
             }
+        }
+
+
+        public async Task SetProductInSkuLookupAsync(Product product)
+        {
+            var json = JsonSerializer.Serialize(product);
+            await _db.HashSetAsync(HashKey, product.ProductId, json);
+        }
+
+
+        public async Task<Product?> GetProductFromSkuLookupAsync(string productId)
+        {
+            var json = await _db.HashGetAsync(HashKey, productId);
+            return json.IsNullOrEmpty ? null : JsonSerializer.Deserialize<Product>(json);
+        }
+
+        public async Task UpdateSkuLookupAsync(Product product)
+        {
+           await SetProductInSkuLookupAsync(product);
         }
     }
 }

@@ -28,7 +28,7 @@ namespace SearchService.Controllers
                 return BadRequest("Product or Product.ProductId cannot be null.");
 
             await _searchService.IndexAsync(product);
-            _autocompleteService.Insert(product.Name); 
+            _autocompleteService.Insert(product.Name);
             return Ok(new { Message = "Product indexed", ProductId = product.ProductId });
         }
 
@@ -70,6 +70,20 @@ namespace SearchService.Controllers
         {
             var words = _autocompleteService.GetAllWords();
             return Ok(words);
+        }
+
+        [HttpGet("{productId}")]
+        public async Task<IActionResult> GetProductById(string productId)
+        {
+            if (string.IsNullOrWhiteSpace(productId))
+            {
+                return BadRequest("ProductId cannot be null or empty.");
+            }
+            var product = await _searchCache.GetProductFromSkuLookupAsync(productId);
+            if (product == null)
+                return NotFound($"Product with ID {productId} not found");
+
+            return Ok(product);
         }
     }
 }

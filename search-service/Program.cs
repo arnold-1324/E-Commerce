@@ -62,15 +62,18 @@ app.Lifetime.ApplicationStarted.Register(() =>
         using var scope = app.Services.CreateScope();
         var searchService = scope.ServiceProvider.GetRequiredService<ISearchService>();
         var trieService   = scope.ServiceProvider.GetRequiredService<TrieAutocompleteService>();
+        var searchCache   = scope.ServiceProvider.GetRequiredService<ISearchCache>();
 
         var allProducts = await searchService.GetAllProductsAsync();
         foreach (var product in allProducts)
         {
             if (!string.IsNullOrWhiteSpace(product.Name))
                 trieService.Insert(product.Name);
+            // Cache product in SKU lookup on startup
+            await searchCache.SetProductInSkuLookupAsync(product);
         }
 
-        Console.WriteLine($"✅ Trie preloaded with {allProducts.Count} product names.");
+        Console.WriteLine($"✅ Trie preloaded with {allProducts.Count} product names and SKU cache populated.");
     });
 });
 

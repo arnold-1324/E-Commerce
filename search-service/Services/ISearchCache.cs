@@ -13,6 +13,8 @@ namespace SearchService.Services
         Task<string?> GetCachedResultAsync(string query);
         Task SetCachedResultAsync(string query, string resultJson, TimeSpan? expiry = null);
 
+        Task SetProductInSkuLookupAsync(Product product);
+        Task<Product?> GetProductFromSkuLookupAsync(string productId);
         Task<bool> IsHealthyAsync();
         Task ClearAllAsync();
     }

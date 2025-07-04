@@ -154,21 +154,25 @@ namespace SearchService.Services
             _logger.LogInformation("Type of message.Product: {Type}", message.Product.GetType().FullName);
             _logger.LogInformation("Serialized Product object to be indexed: {ProductJson}", System.Text.Json.JsonSerializer.Serialize(message.Product));
 
-
+            var sw = System.Diagnostics.Stopwatch.StartNew();
             var esResponse = await _elasticClient.IndexAsync(
                 message.Product,
                 i => i.Index(ProductIndexName).Id(message.ProductId)
             );
+            sw.Stop();
+            _logger.LogInformation("[BENCH] Elasticsearch indexing took {ElapsedMs} ms for ProductId: {ProductId}", sw.ElapsedMilliseconds, message.ProductId);
 
             if (!esResponse.IsValid)
             {
                 throw new Exception($"ES index failed: {esResponse.ServerError}");
             }
 
-            if (message.Product != null && message.EventType=="ProductUpdated")
+            if (message.Product != null )
             {
-                _logger.LogInformation($"Product {message.Product} indexed successfully in Elasticsearch.");
+                var swCache = System.Diagnostics.Stopwatch.StartNew();
                 await _cache.SetProductAsync(message.Product, TimeSpan.FromMinutes(30));
+                swCache.Stop();
+                _logger.LogInformation("[BENCH] Redis cache set took {ElapsedMs} ms for ProductId: {ProductId}", swCache.ElapsedMilliseconds, message.Product.ProductId);
                 _logger.LogInformation($"Product {message.Product.ProductId} indexed successfully in Elasticsearch and cached.");
             }
             else

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Nest;
 using SearchService.Models;
+using SearchService.Services;
 using Microsoft.Extensions.Logging;
 
 namespace SearchService.Repositories
@@ -12,12 +13,15 @@ namespace SearchService.Repositories
     {
         private const string INDEX = "products";
         private readonly IElasticClient _client;
+
+         private readonly ISearchCache _searchCache;
         private readonly ILogger<ElasticSearchRepository> _logger;
 
-        public ElasticSearchRepository(IElasticClient client, ILogger<ElasticSearchRepository> logger)
+        public ElasticSearchRepository(IElasticClient client, ILogger<ElasticSearchRepository> logger, ISearchCache searchCache)
         {
             _client = client;
             _logger = logger;
+            _searchCache = searchCache;
         }
 
         public async Task IndexAsync(Product product)
@@ -26,8 +30,12 @@ namespace SearchService.Repositories
                 .Index(INDEX)
                 .Id(product.ProductId));
             if (!resp.IsValid)
-                throw new Exception(resp.ServerError?.ToString() 
+                throw new Exception(resp.ServerError?.ToString()
                     ?? "Elasticsearch indexing error");
+
+           
+            await _searchCache.SetProductInSkuLookupAsync(product);
+            _logger.LogInformation("✅ Indexed and cached SKU lookup for ProductId: {ProductId}", product.ProductId);
         }
 
         public async Task<IReadOnlyList<Product>> SearchAsync(string query, int page, int size)
