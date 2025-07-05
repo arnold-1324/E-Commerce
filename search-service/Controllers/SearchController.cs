@@ -60,15 +60,22 @@ namespace SearchService.Controllers
         [HttpGet("autocomplete")]
         public IActionResult GetAutocompleteSuggestions([FromQuery] string prefix)
         {
-            _logger.LogInformation("Received autocomplete request for prefix: {Prefix}", prefix.ToLowerInvariant());
+            // Handle empty/whitespace prefix
             if (string.IsNullOrWhiteSpace(prefix))
             {
-                return ok([]);
+                _logger.LogInformation("Empty prefix request - returning default suggestions");
+                var defaults = _autocompleteService.GetDefaultSuggestions();
+                return Ok(defaults != null ? defaults : new List<string>());
             }
-            var results = _autocompleteService.GetSuggestions(prefix.ToLowerInvariant());
-            return Ok(results);
-        }
 
+            // Process non-empty prefix
+            var cleanPrefix = prefix.Trim().ToLowerInvariant();
+            _logger.LogInformation("Processing prefix: '{Prefix}'", cleanPrefix);
+
+            var results = _autocompleteService.GetSuggestions(cleanPrefix);
+            return Ok(results != null ? results : new List<string>());
+        }
+        
         [HttpGet("trie-words")]
         public IActionResult GetAllTrieWords()
         {
@@ -82,6 +89,10 @@ namespace SearchService.Controllers
             if (string.IsNullOrWhiteSpace(productId))
             {
                 return BadRequest("ProductId cannot be null or empty.");
+            }
+            if (!Guid.TryParse(productId, out _))
+            {
+                return BadRequest(Guid.Empty.ToString());
             }
             var product = await _searchCache.GetProductFromSkuLookupAsync(productId);
             if (product == null)

@@ -12,6 +12,19 @@ namespace SearchService.Services
             _trie.Insert(word.ToLowerInvariant());
         }
 
+        public List<string> GetDefaultSuggestions()
+        {
+
+            return new List<string>
+        {
+            "laptop",
+            "smartphone",
+            "headphones",
+            "keyboard",
+            "monitor"
+        };
+        }
+
         public List<string> GetSuggestions(string prefix)
         {
             return _trie.AutoComplete(prefix);
