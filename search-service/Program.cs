@@ -47,6 +47,7 @@ builder.Services.AddSingleton<ConsumerConfig>(sp => new ConsumerConfig
 builder.Services.AddSingleton<RedisSearchCache>();
 builder.Services.AddSingleton<ISearchCache>(sp => sp.GetRequiredService<RedisSearchCache>());
 builder.Services.AddSingleton<TrieAutocompleteService>();
+builder.Services.AddSingleton<IProductIndexService, ProductIndexService>();
 builder.Services.AddHostedService<KafkaConsumerService>();
 
 // Controllers

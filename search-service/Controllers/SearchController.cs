@@ -10,15 +10,18 @@ namespace SearchService.Controllers
     {
         private readonly ISearchService _searchService;
         private readonly ISearchCache _searchCache;
+
+        private readonly IProductIndexService _productIndexService;
         private readonly ILogger<SearchController> _logger;
         private readonly TrieAutocompleteService _autocompleteService;
 
-        public SearchController(ISearchService searchService, ISearchCache searchCache, ILogger<SearchController> logger, TrieAutocompleteService autocompleteService)
+        public SearchController(ISearchService searchService, ISearchCache searchCache, IProductIndexService priceIndexService, ILogger<SearchController> logger, TrieAutocompleteService autocompleteService)
         {
             _searchService = searchService;
             _searchCache = searchCache;
             _logger = logger;
             _autocompleteService = autocompleteService;
+            _productIndexService = priceIndexService;
         }
 
         [HttpPost("index")]
@@ -54,6 +57,33 @@ namespace SearchService.Controllers
             return Ok(elasticResult);
         }
 
+
+        [HttpGet("smart-search")]
+        public async Task<IActionResult> SmartSearch(
+    [FromQuery] string q,
+    [FromQuery] int page = 1,
+    [FromQuery] int size = 20,
+    [FromQuery] double? minPrice = null,
+    [FromQuery] double? maxPrice = null
+)
+        {
+            // Step 1: Filter product IDs based on price range
+            List<string>? priceFilteredIds = null;
+
+            if (minPrice.HasValue && maxPrice.HasValue)
+            {
+                priceFilteredIds = _productIndexService.GetProductIdsInPriceRange(minPrice.Value, maxPrice.Value);
+                if (priceFilteredIds == null || !priceFilteredIds.Any())
+                    return Ok(new SearchResult { TotalCount = 0, Page = page, Size = size, Items = new List<Product>() });
+            }
+
+            // Step 2: Perform search using search service
+            var results = await _searchService.SmartSearchAsync(q, page, size, priceFilteredIds);
+
+            return Ok(results);
+        }
+
+
         [HttpGet("health")]
         public IActionResult Health() => Ok("Search service is healthy 🚀");
 
@@ -75,7 +105,7 @@ namespace SearchService.Controllers
             var results = _autocompleteService.GetSuggestions(cleanPrefix);
             return Ok(results != null ? results : new List<string>());
         }
-        
+
         [HttpGet("trie-words")]
         public IActionResult GetAllTrieWords()
         {

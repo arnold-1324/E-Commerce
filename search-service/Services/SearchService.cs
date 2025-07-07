@@ -35,6 +35,10 @@ namespace SearchService.Services
             return searchResponse.Documents.ToList();
         }
 
+        public async Task<SearchResult> SmartSearchAsync(string query, int page, int size, List<string>? filterIds = null)
+        {
+            return await _repo.SmartSearchAsync(query, page, size, filterIds);
+        }
 
 
         public async Task<SearchResult> SearchAsync(string query, int page, int size)
