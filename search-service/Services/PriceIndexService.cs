@@ -5,11 +5,17 @@ using System.Threading.Tasks;
 
 namespace SearchService.Services
 {
+
     public class ProductIndexService : IProductIndexService
     {
-
         public readonly List<(double Price, string ProductId)> _productIndex = new();
         public readonly object _lock = new();
+        private readonly Microsoft.Extensions.Logging.ILogger<ProductIndexService> _logger;
+
+        public ProductIndexService(Microsoft.Extensions.Logging.ILogger<ProductIndexService> logger)
+        {
+            _logger = logger;
+        }
 
         public void AddProduct(double price, string productId)
         {
@@ -22,17 +28,21 @@ namespace SearchService.Services
 
         public List<string> GetProductIdsInPriceRange(double minPrice, double maxPrice)
         {
-            lock (_lock)
-            {
-                int left = LowerBound(minPrice);
-                int right = UpperBound(maxPrice);
+        lock (_lock)
+        {
+            _logger.LogInformation("Filtering products in price range: {MinPrice} - {MaxPrice}. Total products: {Count}", minPrice, maxPrice, _productIndex.Count);
+            int left = LowerBound(minPrice);
+            int right = UpperBound(maxPrice);
 
-                return _productIndex
-                    .Skip(left)
-                    .Take(right - left + 1)
-                    .Select(p => p.ProductId)
-                    .ToList();
-            }
+            var filtered = _productIndex
+                .Skip(left)
+                .Take(right - left + 1)
+                .Select(p => p.ProductId)
+                .ToList();
+
+            _logger.LogInformation("Filtered products count: {FilteredCount}. ProductIds: {ProductIds}", filtered.Count, string.Join(",", filtered));
+            return filtered;
+        }
         }
 
         private int LowerBound(double target)

@@ -32,6 +32,8 @@ namespace SearchService.Controllers
 
             await _searchService.IndexAsync(product);
             _autocompleteService.Insert(product.Name);
+            // Add product to price index for price range filtering
+            _productIndexService.AddProduct(product.Price, product.ProductId);
             return Ok(new { Message = "Product indexed", ProductId = product.ProductId });
         }
 
@@ -73,6 +75,7 @@ namespace SearchService.Controllers
             if (minPrice.HasValue && maxPrice.HasValue)
             {
                 priceFilteredIds = _productIndexService.GetProductIdsInPriceRange(minPrice.Value, maxPrice.Value);
+                _logger.LogInformation("Filtered {Count} product IDs in price range [{MinPrice}, {MaxPrice}]", priceFilteredIds.Count, minPrice, maxPrice);
                 if (priceFilteredIds == null || !priceFilteredIds.Any())
                     return Ok(new SearchResult { TotalCount = 0, Page = page, Size = size, Items = new List<Product>() });
             }
