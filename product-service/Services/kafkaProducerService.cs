@@ -12,7 +12,7 @@ namespace ProductService.Services
 
     public interface IKafkaProducerService
     {
-        Task ProduceProductEventAsync(string eventType, Product product);
+        Task ProduceProductEventAsync(string eventType, object product);
     }
 
     public class KafkaProducerService : IKafkaProducerService, IDisposable
@@ -41,15 +41,14 @@ namespace ProductService.Services
 
         }
 
-        public async Task ProduceProductEventAsync(string eventType, Product product)
+        public async Task ProduceProductEventAsync(string eventType, object productData)
         {
             try
             {
                 var message = new
                 {
                     EventType = eventType,
-                    ProductId = product.ProductId,
-                    Product = product,
+                    Payload = productData,   // could be Product or just ProductId
                     Metadata = new
                     {
                         ProducedAt = DateTime.UtcNow,
@@ -61,14 +60,14 @@ namespace ProductService.Services
                 var deliveryResult = await _producer.ProduceAsync(_topic, new Message<Null, string> { Value = json });
 
                 _logger.LogInformation(
-                    $"Produced {eventType} event for product {product.ProductId} " +
+                    $"Produced {eventType} event with payload {json} " +
                     $"to {deliveryResult.TopicPartitionOffset}");
 
             }
             catch (ProduceException<Null, string> ex)
             {
                 _logger.LogError(ex,
-                     $"Failed to deliver {eventType} message for product {product.ProductId}: {ex.Error.Reason}");
+             $"Failed to deliver {eventType} message: {ex.Error.Reason}");
                 throw;
             }
             

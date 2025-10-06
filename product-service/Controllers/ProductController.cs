@@ -70,9 +70,10 @@ namespace ProductService.Controllers
             if (existing == null)
                 return NotFound();
 
+            updatedProduct.ProductId = id; // ensure id consistency
             await _productService.UpdateAsync(id, updatedProduct);
             await _producer.ProduceProductEventAsync("ProductUpdated", updatedProduct);
-            return NoContent();
+            return Ok(updatedProduct); // return updated resource
 
         }
         [HttpDelete("{id}")]
@@ -83,7 +84,8 @@ namespace ProductService.Controllers
                 var existing = await _productService.GetByIdAsync(id);
                 if (existing == null)
                     return NotFound();
-                await _producer.ProduceEventAsync("product-events", "ProductDeleted", new { ProductId = id });
+                await _producer.ProduceProductEventAsync("ProductDeleted", new { ProductId = id });
+
                 await _productService.DeleteAsync(id);
                 return NoContent();
             }

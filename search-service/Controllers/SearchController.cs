@@ -106,6 +106,7 @@ namespace SearchService.Controllers
             _logger.LogInformation("Processing prefix: '{Prefix}'", cleanPrefix);
 
             var results = _autocompleteService.GetSuggestions(cleanPrefix);
+
             return Ok(results != null ? results : new List<string>());
         }
 

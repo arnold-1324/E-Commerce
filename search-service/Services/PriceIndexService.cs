@@ -31,27 +31,25 @@ namespace SearchService.Services
         lock (_lock)
         {
             _logger.LogInformation("Filtering products in price range: {MinPrice} - {MaxPrice}. Total products: {Count}", minPrice, maxPrice, _productIndex.Count);
-            int left = LowerBound(minPrice);
-            int right = UpperBound(maxPrice);
+            
+                int low=Lowerbound(minPrice);
+                int high=Upperbound(maxPrice);
 
-            var filtered = _productIndex
-                .Skip(left)
-                .Take(right - left + 1)
-                .Select(p => p.ProductId)
-                .ToList();
+                var filtered = _productIndex.Skip(low).Take(high-low+1).Select(p=>p.ProductId).ToList();
 
-            _logger.LogInformation("Filtered products count: {FilteredCount}. ProductIds: {ProductIds}", filtered.Count, string.Join(",", filtered));
+
+                _logger.LogInformation("Filtered products count: {FilteredCount}. ProductIds: {ProductIds}", filtered.Count, string.Join(",", filtered));
             return filtered;
         }
         }
 
-        private int LowerBound(double target)
+        private int Lowerbound(double price)
         {
             int low = 0, high = _productIndex.Count - 1, ans = _productIndex.Count;
-            while (low <= high)
+            while(low<=high)
             {
-                int mid = (low + high) / 2;
-                if (_productIndex[mid].Price >= target)
+                int mid = low + (high - low) / 2;
+                if(_productIndex[mid].Price >= price)
                 {
                     ans = mid;
                     high = mid - 1;
@@ -64,13 +62,14 @@ namespace SearchService.Services
             return ans;
         }
 
-        private int UpperBound(double target)
+
+        private int Upperbound(double price)
         {
             int low = 0, high = _productIndex.Count - 1, ans = -1;
-            while (low <= high)
+            while(low<=high)
             {
-                int mid = (low + high) / 2;
-                if (_productIndex[mid].Price <= target)
+                int mid = low + (high - low) / 2;
+                if(_productIndex[mid].Price <= price)
                 {
                     ans = mid;
                     low = mid + 1;
@@ -82,5 +81,6 @@ namespace SearchService.Services
             }
             return ans;
         }
+
     }
  }

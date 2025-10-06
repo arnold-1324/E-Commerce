@@ -3,19 +3,22 @@ using Nest;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using SearchService.Models;
+
 namespace SearchService.Services
 {
     public class KafkaConsumerService : BackgroundService
     {
         private readonly IConsumer<Ignore, string> _consumer;
         private readonly IElasticClient _elasticClient;
-
         private readonly ISearchCache _cache;
-
         private readonly ILogger<KafkaConsumerService> _logger;
         private const string ProductIndexName = "products";
 
-        public KafkaConsumerService(IConfiguration configuration, IElasticClient elasticClient, ISearchCache cache, ILogger<KafkaConsumerService> logger)
+        public KafkaConsumerService(
+            IConfiguration configuration,
+            IElasticClient elasticClient,
+            ISearchCache cache,
+            ILogger<KafkaConsumerService> logger)
         {
             _elasticClient = elasticClient;
             _cache = cache;
@@ -28,7 +31,7 @@ namespace SearchService.Services
                 AutoOffsetReset = AutoOffsetReset.Earliest,
                 EnableAutoCommit = false,
                 EnableAutoOffsetStore = false,
-                MaxPollIntervalMs = 300000
+                MaxPollIntervalMs = 300_000
             };
 
             _consumer = new ConsumerBuilder<Ignore, string>(consumerConfig)
@@ -50,16 +53,18 @@ namespace SearchService.Services
                     {
                         var consumerResult = _consumer.Consume(stoppingToken);
                         var root = JsonNode.Parse(consumerResult.Message.Value);
+
                         var eventType = root?["EventType"]?.GetValue<string>() ?? string.Empty;
                         var payload = root?["Payload"];
                         var productId = root?["ProductId"]?.GetValue<string>() ?? payload?["ProductId"]?.GetValue<string>() ?? string.Empty;
+
                         _logger.LogInformation("Raw payload: {Payload}", payload?.ToJsonString());
                         _logger.LogInformation("Received message: {Message}", consumerResult.Message.Value);
 
                         ProductEvent productEvent = null;
+
                         if (payload != null)
                         {
-                            // For ProductCreated/Updated, payload is a full product; for Deleted, just ProductId
                             if (eventType == "ProductDeleted")
                             {
                                 productEvent = new ProductEvent
@@ -70,16 +75,25 @@ namespace SearchService.Services
                             }
                             else
                             {
-                                productEvent = payload.Deserialize<ProductEvent>();
-                                if (productEvent != null)
+                                // Deserialize payload into Product with case-insensitive JSON options
+                                var product = payload.Deserialize<Product>(
+                                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                                );
+
+                                if (product != null)
                                 {
-                                    productEvent.EventType = eventType;
-                                    productEvent.ProductId = productId;
+                                    productEvent = new ProductEvent
+                                    {
+                                        EventType = eventType,
+                                        ProductId = product.ProductId,
+                                        Product = product
+                                    };
                                 }
                             }
                         }
 
                         _logger.LogInformation("Deserialized ProductEvent: {ProductEvent}", JsonSerializer.Serialize(productEvent));
+
                         if (productEvent?.Product != null)
                         {
                             _logger.LogInformation("Deserialized Product object: {ProductJson}", JsonSerializer.Serialize(productEvent.Product));
@@ -101,9 +115,11 @@ namespace SearchService.Services
                             case "ProductUpdated":
                                 await ProcessUpsertAsync(productEvent);
                                 break;
+
                             case "ProductDeleted":
                                 await ProcessDeleteAsync(productEvent.ProductId);
                                 break;
+
                             default:
                                 _logger.LogWarning($"Unknown event type: {productEvent.EventType}");
                                 break;
@@ -112,7 +128,7 @@ namespace SearchService.Services
                         // Commit offset after successful processing
                         _consumer.Commit(consumerResult);
                     }
-                    catch (OperationCanceledException) { /* Graceful shutdown */ }
+                    catch (OperationCanceledException) { /* graceful shutdown */ }
                     catch (Exception ex)
                     {
                         _logger.LogError(ex, "Error consuming message from Kafka");
@@ -130,11 +146,8 @@ namespace SearchService.Services
                 {
                     await _elasticClient.Indices.CreateAsync(ProductIndexName, c => c
                         .Map<Product>(m => m.AutoMap())
-                        .Settings(s => s
-                            .NumberOfShards(2)
-                            .NumberOfReplicas(1)));
+                        .Settings(s => s.NumberOfShards(2).NumberOfReplicas(1)));
                 }
-
             }
             catch (Exception ex)
             {
@@ -145,20 +158,21 @@ namespace SearchService.Services
 
         private async Task ProcessUpsertAsync(ProductEvent message)
         {
-            // Type check and log
             if (message.Product == null)
             {
                 _logger.LogError("Product is null in ProductEvent");
                 throw new Exception("Product is null in ProductEvent");
             }
+
             _logger.LogInformation("Type of message.Product: {Type}", message.Product.GetType().FullName);
-            _logger.LogInformation("Serialized Product object to be indexed: {ProductJson}", System.Text.Json.JsonSerializer.Serialize(message.Product));
+            _logger.LogInformation("Serialized Product object to be indexed: {ProductJson}", JsonSerializer.Serialize(message.Product));
 
             var sw = System.Diagnostics.Stopwatch.StartNew();
-            var esResponse = await _elasticClient.IndexAsync(
-                message.Product,
-                i => i.Index(ProductIndexName).Id(message.ProductId)
-            );
+            var esResponse = await _elasticClient.IndexAsync(message.Product, i => i
+      .Index(ProductIndexName)          // Index name
+      .Id(message.Product.ProductId)    // Use the ProductId property of Product
+      .Refresh(Elasticsearch.Net.Refresh.True) // Optional: forces refresh so document is immediately searchable
+  );
             sw.Stop();
             _logger.LogInformation("[BENCH] Elasticsearch indexing took {ElapsedMs} ms for ProductId: {ProductId}", sw.ElapsedMilliseconds, message.ProductId);
 
@@ -167,25 +181,17 @@ namespace SearchService.Services
                 throw new Exception($"ES index failed: {esResponse.ServerError}");
             }
 
-            if (message.Product != null )
-            {
-                var swCache = System.Diagnostics.Stopwatch.StartNew();
-                await _cache.SetProductAsync(message.Product, TimeSpan.FromMinutes(30));
-                swCache.Stop();
-                _logger.LogInformation("[BENCH] Redis cache set took {ElapsedMs} ms for ProductId: {ProductId}", swCache.ElapsedMilliseconds, message.Product.ProductId);
-                _logger.LogInformation($"Product {message.Product.ProductId} indexed successfully in Elasticsearch and cached.");
-            }
-            else
-            {
-                _logger.LogWarning($"Product is null in ProductEvent for ProductId: {message.ProductId}");
-            }
+            var swCache = System.Diagnostics.Stopwatch.StartNew();
+            await _cache.SetProductAsync(message.Product, TimeSpan.FromMinutes(30));
+            swCache.Stop();
+            _logger.LogInformation("[BENCH] Redis cache set took {ElapsedMs} ms for ProductId: {ProductId}", swCache.ElapsedMilliseconds, message.Product.ProductId);
+
+            _logger.LogInformation($"Product {message.Product.ProductId} indexed successfully in Elasticsearch and cached.");
         }
 
         private async Task ProcessDeleteAsync(string productId)
         {
-            // Remove from cache first
             await _cache.RemoveCachedSearchResultsContainingProductAsync(productId);
-            // Then remove from Elasticsearch
             var esResponse = await _elasticClient.DeleteAsync<Product>(productId, d => d.Index(ProductIndexName));
             if (!esResponse.IsValid)
             {

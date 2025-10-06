@@ -70,7 +70,6 @@ services:
       - "5002:5000"
     depends_on:
       - redis
-      # - kafka
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 15s
@@ -90,7 +89,6 @@ services:
       - "5003:5000"
     depends_on:
       - postgres
-      # - kafka
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 15s
@@ -278,7 +276,7 @@ services:
       - discovery.type=single-node
       - xpack.security.enabled=false
       - xpack.security.http.ssl.enabled=false
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
     volumes:
       - es-data:/usr/share/elasticsearch/data
     ports:
@@ -400,15 +398,18 @@ services:
     networks:
       - ecommerce-net
 
-  elasticsearch-head:
-    image: mobz/elasticsearch-head:5
-    container_name: elasticsearch-head
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.5.1
+    container_name: kibana
     ports:
-      - "9100:9100"
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     depends_on:
       - elasticsearch
     networks:
       - ecommerce-net
+    restart: unless-stopped
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest

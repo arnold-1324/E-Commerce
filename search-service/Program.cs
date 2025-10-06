@@ -7,15 +7,36 @@ using Confluent.Kafka;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Elasticsearch Client
 var esUri = new Uri(builder.Configuration["Elasticsearch:Url"] ?? "http://elasticsearch:9200");
-var settings = new ConnectionSettings(esUri)
-    .DefaultIndex("products");
-builder.Services.AddSingleton<IElasticClient>(_ => new ElasticClient(settings));
 
+var settings = new ConnectionSettings(esUri)
+    .DefaultIndex("products")
+    .DefaultMappingFor<Product>(m => m
+        .PropertyName(p => p.ProductId, "product_id")
+        .PropertyName(p => p.Name, "name")
+        .PropertyName(p => p.Description, "description")
+        .PropertyName(p => p.Price, "price")
+        .PropertyName(p => p.Category, "category")
+        .PropertyName(p => p.Subcategory, "subcategory")
+        .PropertyName(p => p.Attributes, "attributes")
+        .PropertyName(p => p.Stock, "stock")
+        .PropertyName(p => p.Brand, "brand")
+        .PropertyName(p => p.Rating, "rating")
+        .PropertyName(p => p.Tags, "tags")
+        .PropertyName(p => p.RelatedProducts, "related_products")
+        .PropertyName(p => p.ImageUrl, "image_url")
+    )
+    // This prevents automatic camelCase conversion
+    .DefaultFieldNameInferrer(p => p);
+
+
+// Register ElasticClient as singleton
+builder.Services.AddSingleton<IElasticClient>(_ => new ElasticClient(settings));
 // Your repo & services
 builder.Services.AddSingleton<IElasticSearchRepository, ElasticSearchRepository>();
 
@@ -64,7 +85,10 @@ app.Lifetime.ApplicationStarted.Register(() =>
         var searchService = scope.ServiceProvider.GetRequiredService<ISearchService>();
         var trieService   = scope.ServiceProvider.GetRequiredService<TrieAutocompleteService>();
         var searchCache   = scope.ServiceProvider.GetRequiredService<ISearchCache>();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        var productIndexService = scope.ServiceProvider.GetRequiredService<IProductIndexService>();
 
+        logger.LogInformation("Starting Trie and SKU cache preload...");
         var allProducts = await searchService.GetAllProductsAsync();
         foreach (var product in allProducts)
         {
@@ -72,9 +96,10 @@ app.Lifetime.ApplicationStarted.Register(() =>
                 trieService.Insert(product.Name);
             // Cache product in SKU lookup on startup
             await searchCache.SetProductInSkuLookupAsync(product);
+            productIndexService.AddProduct(product.Price, product.ProductId);
         }
 
-        Console.WriteLine($"✅ Trie preloaded with {allProducts.Count} product names and SKU cache populated.");
+        logger.LogInformation($"✅ Trie preloaded with {allProducts.Count} product names and SKU cache populated.");
     });
 });
 

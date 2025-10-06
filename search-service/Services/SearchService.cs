@@ -12,7 +12,7 @@ namespace SearchService.Services
     {
         private readonly IElasticSearchRepository _repo;
         private readonly IElasticClient _elasticClient;
-
+        
         public SearchService(IElasticSearchRepository repo, IElasticClient elasticClient)
         {
             _repo = repo;
@@ -27,10 +27,38 @@ namespace SearchService.Services
         public async Task<List<Product>> GetAllProductsAsync()
         {
             var searchResponse = await _elasticClient.SearchAsync<Product>(s => s
-                .Index("products")
-                .Size(10000) 
-                .Query(q => q.MatchAll())
-            );
+                  .Index("products")
+                  .Query(q => q.MatchAll())
+                  .Size(1000)
+                  .Source(sf => sf
+                      .Includes(f => f
+                          .Fields(
+                              p => p.ProductId,
+                              p => p.Name,
+                              p => p.Description,
+                              p => p.Price,
+                              p => p.Category,
+                              p => p.Subcategory,
+                              p => p.Attributes,
+                              p => p.Stock,
+                              p => p.Brand,
+                              p => p.Rating,
+                              p => p.Tags,
+                              p => p.RelatedProducts,
+                              p => p.ImageUrl
+                          )
+                      )
+                  )
+              );
+
+
+            Console.WriteLine($"Total Hits: {searchResponse.HitsMetadata?.Total?.Value}");
+
+            foreach (var hit in searchResponse.Hits)
+            {
+                Console.WriteLine($"Hit Id: {hit.Id}, Source: {hit.Source?.Name}");
+            }
+
 
             return searchResponse.Documents.ToList();
         }
