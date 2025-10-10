@@ -4,6 +4,7 @@ using ProductService.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Text.Json;
+using product_service.Utilits;
 
 namespace ProductService.Controllers
 {
@@ -14,10 +15,40 @@ namespace ProductService.Controllers
 
         private readonly IProductService _productService;
         private readonly KafkaProducerService _producer;
+        private static FenwickTree _fenwickTree;
+        private static RestockHeap _restockHeap;
+        private static Dictionary<string, int> _skuToIndex;
+        private static List<string> _indexToSku;
+
+
         public ProductController(IProductService productService, KafkaProducerService producer)
         {
+            InitializeDSA().Wait();
             _productService = productService;
             _producer = producer;
+        }
+
+        private async Task InitializeDSA()
+        {
+            var allProduct = await _productService.GetAsync();
+            int n = allProduct.Count;
+
+            _fenwickTree = new FenwickTree(n);
+            _restockHeap = new RestockHeap();
+            _skuToIndex = new Dictionary<string, int>();
+            _indexToSku = new List<string>();
+
+            for (int i = 0; i < n; i++)
+            {
+                var product = allProduct[i];
+                string sku = product.ProductId;
+                int stock = product.Stock;
+
+                _skuToIndex[sku] = i;
+                _indexToSku.Add(sku);
+                _fenwickTree.Add(i, stock);
+                _restockHeap.AddOrUpdate(sku, stock);
+            }
         }
 
         [HttpGet("health")]
@@ -98,7 +129,13 @@ namespace ProductService.Controllers
                 // log ex
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
-        }
+        } 
+
+
+
+
+
+
 
     }
 
