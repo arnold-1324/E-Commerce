@@ -76,7 +76,7 @@ namespace SearchService.Repositories
 
             if (!response.IsValid)
                 throw new Exception(response.ServerError?.ToString() ?? "ElasticSearch error");
-
+            
             return new SearchResult
             {
                 TotalCount = (int)response.Total,

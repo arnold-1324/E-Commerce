@@ -2,37 +2,43 @@
 {
     public class RestockItem : IComparable<RestockItem>
     {
-        public string SKU { get; set; }
+        public string SKU { get; set; } = string.Empty;
         public int Stock { get; set; }
 
-        public int CompareTo(RestockItem other)
+        public int CompareTo(RestockItem? other)
         {
+            if (other == null) return 1;
             return Stock.CompareTo(other.Stock); 
         }
     }
     public class RestockHeap
     {
-        private SortedSet<RestockItem> heap = new();
+        public SortedSet<RestockItem> Heap { get; private set; } = new();
 
         public void AddOrUpdate(string sku, int stock)
         {
-            var existing = heap.FirstOrDefault(item => item.SKU == sku);
-
+            var existing = Heap.FirstOrDefault(item => item.SKU == sku);
             if (existing != null)
             {
-                heap.Remove(existing);
+                Heap.Remove(existing);
             }
-            heap.Add(new RestockItem { SKU=sku, Stock=stock });
+            Heap.Add(new RestockItem { SKU = sku, Stock = stock });
         }
-    public RestockItem PopLowestStock()
-    {
-        var item = heap.Min;
-        if (item != null)
+
+        public RestockItem? PopLowestStock()
         {
-            heap.Remove(item);
+            var item = Heap.Min;
+            if (item != null)
+            {
+                Heap.Remove(item);
+            }
+            return item;
         }
-        return item;
-    }
+
+        public RestockItem? PeekLowestStock()
+        {
+            return Heap.Min;
+        }
     }
 
 
